@@ -217,6 +217,8 @@ python -m stego capacity --input recording.mp3
 
 ## Web Interface
 
+**Live demo → [https://invisync.vercel.app](https://invisync.vercel.app)**
+
 Invisync also ships a FastAPI web application with a clean browser UI.
 
 ```bash
@@ -307,11 +309,12 @@ The following security measures are implemented or verified:
 
 ## Contributing
 
-This repository is maintained solely by [deepmaha2006](https://github.com/deepmaha2006).  
-Issues and pull requests are welcome — please review the security policy before reporting vulnerabilities.
+This repository is maintained solely by **[deepmaha2006](https://github.com/deepmaha2006)**.  
+Issues and pull requests are welcome — please review the security policy before reporting vulnerabilities.  
+No other contributors are authorised to merge changes.
 
 ---
 
 ## License
 
-[MIT](LICENSE) © 2024 deepmaha2006
+[MIT](LICENSE) © 2026 deepmaha2006
