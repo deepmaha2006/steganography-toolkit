@@ -7,377 +7,476 @@
 <meta name="description" content="Invisync: hide encrypted data in images, audio, QR codes, text, and PDFs using military-grade AES-256-GCM encryption.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Geist+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* ── Kraftline design tokens ── */
-  :root {
-    --font-primary:   'Geist Mono', 'Courier New', monospace;
-    --font-size-base: 14px;
-    --font-weight:    500;
-    --line-height:    18.2px;
 
-    --font-xs:   12px;
-    --font-sm:   14px;
-    --font-md:   16px;
-    --font-lg:   18px;
-    --font-xl:   20px;
-    --font-2xl:  32px;
-    --font-3xl:  42px;
+/* ── Kraftline design tokens ──────────────────────────────────── */
+:root {
+  /* Colors */
+  --canvas:          #14120f;
+  --surface:         #1f1d1a;
+  --surface-2:       #252320;
+  --text-primary:    #e7e4de;
+  --text-secondary:  #ffffffb3;
+  --text-dim:        rgba(231,228,222,.45);
+  --accent:          #cc410f;
+  --accent-dim:      rgba(204,65,15,.12);
+  --border:          #767676;
+  --border-subtle:   rgba(118,118,118,.2);
+  --border-strong:   rgba(118,118,118,.5);
 
-    --text-primary:   #ffffff;
-    --text-secondary: #e7e4de;
-    --text-dim:       rgba(231,228,222,.45);
-    --surface:        #000000;
-    --surface-raised: #0c0c0c;
-    --surface-input:  #101010;
-    --border:         rgba(231,228,222,.1);
-    --border-hover:   rgba(231,228,222,.3);
-    --border-active:  rgba(231,228,222,.8);
+  /* Typography */
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body:    'Geist Mono', ui-monospace, monospace;
 
-    --space-1: 6px;
-    --space-2: 9px;
-    --space-3: 10px;
-    --space-4: 16px;
-    --space-5: 150px;
+  /* Type scale */
+  --text-display:  68px;
+  --text-heading:  44px;
+  --text-sm-head:  28px;
+  --text-body:     18px;
+  --text-sm:       14px;
+  --text-xs:       12px;
+  --lead-tight:    0.9;
+  --lead-body:     1.3;
+  --lead-sm:       1.2;
+  --track-display: -2.04px;
 
-    --radius: 10px;
-    --shadow: rgba(5,8,12,.1) 0px 2px 4px 0px;
+  /* Spacing — 5px base unit */
+  --s1:  5px;
+  --s2:  10px;
+  --s3:  15px;
+  --s4:  20px;
+  --s5:  30px;
+  --s6:  60px;
 
-    --motion-instant: 400ms;
-    --motion-fast:    450ms;
+  /* Radius */
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 11px;
 
-    --success: rgba(231,228,222,.85);
-    --danger:  rgba(231,228,222,.65);
-  }
+  /* Shadows */
+  --shadow-inset: rgb(0,0,0) 0px 0px 0px 1px inset;
+  --shadow-lg:    rgba(5,8,12,.1) 0px 2px 4px 0px;
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: var(--font-primary);
-    font-size:   var(--font-size-base);
-    font-weight: var(--font-weight);
-    line-height: var(--line-height);
-    background:  var(--surface);
-    color:       var(--text-secondary);
-    min-height:  100vh;
-  }
+  /* Motion */
+  --dur:  450ms;
+  --ease: cubic-bezier(0.44, 0.00, 0.56, 1.00);
+}
 
-  /* ── header ── */
-  header {
-    display:         flex;
-    align-items:     center;
-    justify-content: space-between;
-    padding:         var(--space-4) 2rem;
-    border-bottom:   1px solid var(--border);
-    position:        sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--surface);
-  }
-  .logo {
-    font-size:      var(--font-xl);
-    font-weight:    700;
-    letter-spacing: -.02em;
-    color:          var(--text-primary);
-  }
-  .logo-dot { color: var(--text-dim); }
-  nav { display: flex; align-items: center; gap: 1.5rem; }
-  nav a {
-    color:          var(--text-dim);
-    text-decoration: none;
-    font-size:      var(--font-xs);
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    transition:     color var(--motion-instant);
-  }
-  nav a:hover, nav a:focus-visible { color: var(--text-primary); outline: none; }
-  nav a:focus-visible { text-decoration: underline; }
-  .badge {
-    font-size:      var(--font-xs);
-    font-weight:    600;
-    padding:        3px var(--space-2);
-    border-radius:  var(--radius);
-    border:         1px solid var(--border);
-    color:          var(--text-dim);
-    letter-spacing: .04em;
-  }
+/* ── Reset ────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family:     var(--font-body);
+  font-size:       var(--text-sm);
+  font-weight:     500;
+  line-height:     var(--lead-body);
+  background:      var(--canvas);
+  color:           var(--text-primary);
+  min-height:      100vh;
+  -webkit-font-smoothing: antialiased;
+}
 
-  /* ── hero ── */
-  .hero {
-    text-align:  center;
-    padding:     4rem 2rem 2.5rem;
-    max-width:   700px;
-    margin:      0 auto;
-    border-bottom: 1px solid var(--border);
-  }
-  .hero-label {
-    font-size:      var(--font-xs);
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color:          var(--text-dim);
-    margin-bottom:  1.25rem;
-  }
-  .hero h1 {
-    font-size:      clamp(var(--font-2xl), 5vw, var(--font-3xl));
-    font-weight:    700;
-    letter-spacing: -.02em;
-    color:          var(--text-primary);
-    margin-bottom:  .75rem;
-    line-height:    1.1;
-  }
-  .hero p {
-    font-size:     var(--font-sm);
-    color:         var(--text-dim);
-    max-width:     480px;
-    margin:        0 auto 1.75rem;
-    line-height:   1.6;
-  }
-  .pill-row { display: flex; gap: var(--space-2); justify-content: center; flex-wrap: wrap; }
-  .pill {
-    font-size:      var(--font-xs);
-    font-weight:    500;
-    padding:        var(--space-1) var(--space-3);
-    border-radius:  var(--radius);
-    border:         1px solid var(--border);
-    color:          var(--text-dim);
-    letter-spacing: .04em;
-  }
+/* ── Skip link (accessibility) ───────────────────────────────── */
+.skip-link {
+  position: absolute;
+  left: var(--s4);
+  top: var(--s4);
+  background: var(--accent);
+  color: #fff;
+  padding: var(--s1) var(--s2);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--dur) var(--ease);
+  z-index: 999;
+}
+.skip-link:focus { transform: translateY(0); }
 
-  /* ── tabs ── */
-  .tabs-wrapper {
-    max-width: 900px;
-    margin:    0 auto;
-    padding:   2rem 1rem 4rem;
-  }
-  .tab-list {
-    display:        flex;
-    gap:            var(--space-1);
-    overflow-x:     auto;
-    padding-bottom: var(--space-2);
-    margin-bottom:  1.5rem;
-    scrollbar-width: none;
-    border-bottom:  1px solid var(--border);
-  }
-  .tab-list::-webkit-scrollbar { display: none; }
-  .tab-btn {
-    flex-shrink:    0;
-    padding:        var(--space-2) var(--space-4);
-    border-radius:  0;
-    border:         none;
-    border-bottom:  2px solid transparent;
-    background:     transparent;
-    color:          var(--text-dim);
-    font-family:    var(--font-primary);
-    font-size:      var(--font-xs);
-    font-weight:    600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    cursor:         pointer;
-    transition:     color var(--motion-instant), border-color var(--motion-instant);
-    white-space:    nowrap;
-    margin-bottom:  -1px;
-  }
-  .tab-btn:hover       { color: var(--text-secondary); }
-  .tab-btn.active      { color: var(--text-primary); border-bottom-color: var(--text-primary); }
-  .tab-btn:focus-visible { outline: 1px solid var(--border-active); outline-offset: 2px; }
+/* ── Header ───────────────────────────────────────────────────── */
+header {
+  position:        sticky;
+  top:             0;
+  z-index:         9;
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         var(--s1) var(--s5);
+  height:          60px;
+  border-bottom:   1px solid var(--border-subtle);
+  background:      var(--canvas);
+  backdrop-filter: blur(10px);
+}
+.logo {
+  font-family:     var(--font-display);
+  font-size:       26px;
+  line-height:     1;
+  letter-spacing:  .04em;
+  color:           var(--text-primary);
+}
+.logo-accent { color: var(--accent); }
+nav {
+  display:     flex;
+  align-items: center;
+  gap:         var(--s4);
+}
+nav a {
+  color:          var(--text-dim);
+  text-decoration: none;
+  font-size:      var(--text-xs);
+  font-weight:    600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  transition:     color var(--dur) var(--ease);
+}
+nav a:hover, nav a:focus-visible { color: var(--text-primary); outline: none; }
+nav a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+.badge {
+  font-size:      var(--text-xs);
+  font-weight:    700;
+  letter-spacing: .08em;
+  padding:        3px var(--s1);
+  border:         1px solid var(--border-subtle);
+  border-radius:  var(--r-sm);
+  color:          var(--text-dim);
+}
 
-  /* ── card ── */
-  .card { display: none; }
-  .card.active { display: block; }
-  .card-header { margin-bottom: 1.5rem; }
-  .card-header h2 {
-    font-size:      var(--font-md);
-    font-weight:    700;
-    color:          var(--text-primary);
-    letter-spacing: -.01em;
-    margin-bottom:  .25rem;
-  }
-  .card-header .sub {
-    font-size:  var(--font-xs);
-    color:      var(--text-dim);
-    line-height: 1.6;
-  }
+/* ── Hero ─────────────────────────────────────────────────────── */
+.hero {
+  padding:         var(--s6) var(--s5) var(--s5);
+  border-bottom:   1px solid var(--border-subtle);
+  max-width:       1140px;
+  margin:          0 auto;
+}
+.hero-eyebrow {
+  font-size:      var(--text-xs);
+  font-weight:    700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color:          var(--accent);
+  margin-bottom:  var(--s2);
+}
+.hero h1 {
+  font-family:    var(--font-display);
+  font-size:      clamp(44px, 7vw, 68px);
+  line-height:    var(--lead-tight);
+  letter-spacing: var(--track-display);
+  color:          var(--text-primary);
+  margin-bottom:  var(--s3);
+  max-width:      700px;
+}
+.hero p {
+  font-size:   var(--text-sm);
+  line-height: var(--lead-body);
+  color:       var(--text-dim);
+  max-width:   540px;
+  margin-bottom: var(--s4);
+}
+.pill-row  { display: flex; gap: var(--s1); flex-wrap: wrap; }
+.pill {
+  font-size:      var(--text-xs);
+  font-weight:    600;
+  letter-spacing: .06em;
+  padding:        var(--s1) var(--s2);
+  border:         1px solid var(--border-subtle);
+  border-radius:  var(--r-sm);
+  color:          var(--text-dim);
+}
+.pill.accent {
+  border-color:   rgba(204,65,15,.4);
+  color:          var(--accent);
+  background:     var(--accent-dim);
+}
 
-  .enc-dec {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-  @media (max-width: 600px) { .enc-dec { grid-template-columns: 1fr; } }
+/* ── Tabs wrapper ─────────────────────────────────────────────── */
+.tabs-wrapper {
+  max-width: 1140px;
+  margin:    0 auto;
+  padding:   var(--s5) var(--s5) var(--s6);
+}
+.tab-list {
+  display:        flex;
+  gap:            0;
+  overflow-x:     auto;
+  scrollbar-width: none;
+  border-bottom:  1px solid var(--border-subtle);
+  margin-bottom:  var(--s5);
+}
+.tab-list::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink:    0;
+  padding:        var(--s2) var(--s4);
+  background:     transparent;
+  border:         none;
+  border-bottom:  2px solid transparent;
+  font-family:    var(--font-body);
+  font-size:      var(--text-xs);
+  font-weight:    700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color:          var(--text-dim);
+  cursor:         pointer;
+  white-space:    nowrap;
+  margin-bottom:  -1px;
+  transition:     color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.tab-btn:hover                { color: var(--text-primary); }
+.tab-btn.active               { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-btn:focus-visible        { outline: 1px solid var(--accent); outline-offset: 2px; }
 
-  .panel {
-    border:        1px solid var(--border);
-    border-radius: var(--radius);
-    padding:       1.25rem;
-    background:    var(--surface-raised);
-  }
-  .panel h3 {
-    font-size:      var(--font-xs);
-    font-weight:    700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color:          var(--text-primary);
-    margin-bottom:  1rem;
-    padding-bottom: var(--space-2);
-    border-bottom:  1px solid var(--border);
-  }
+/* ── Card & panel ─────────────────────────────────────────────── */
+.card         { display: none; }
+.card.active  { display: block; }
 
-  /* ── form elements ── */
-  label {
-    display:        block;
-    font-size:      var(--font-xs);
-    font-weight:    600;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color:          var(--text-dim);
-    margin-bottom:  var(--space-1);
-  }
-  input[type=text], input[type=password], input[type=url], input[type=number],
-  textarea, select {
-    width:         100%;
-    background:    var(--surface-input);
-    border:        1px solid var(--border);
-    border-radius: var(--radius);
-    color:         var(--text-secondary);
-    padding:       var(--space-2) var(--space-3);
-    font-size:     var(--font-sm);
-    font-family:   var(--font-primary);
-    font-weight:   var(--font-weight);
-    outline:       none;
-    transition:    border-color var(--motion-instant);
-    margin-bottom: 1rem;
-  }
-  input:hover, textarea:hover                   { border-color: var(--border-hover); }
-  input:focus, textarea:focus, select:focus     { border-color: var(--border-active); }
-  textarea { resize: vertical; min-height: 80px; }
-  input::placeholder, textarea::placeholder     { color: var(--text-dim); }
+.card-header { margin-bottom: var(--s4); }
+.card-header h2 {
+  font-family:    var(--font-display);
+  font-size:      var(--text-sm-head);
+  line-height:    var(--lead-tight);
+  letter-spacing: .02em;
+  color:          var(--text-primary);
+  margin-bottom:  var(--s1);
+}
+.card-header .sub {
+  font-size:   var(--text-xs);
+  line-height: var(--lead-body);
+  color:       var(--text-dim);
+}
 
-  .file-drop {
-    border:        1px dashed var(--border);
-    border-radius: var(--radius);
-    padding:       1.25rem;
-    text-align:    center;
-    cursor:        pointer;
-    transition:    border-color var(--motion-instant), background var(--motion-fast);
-    margin-bottom: 1rem;
-    position:      relative;
-    overflow:      hidden;
-  }
-  .file-drop:hover, .file-drop.over {
-    border-color: var(--border-hover);
-    background:   rgba(231,228,222,.03);
-  }
-  .file-drop:focus-within { border-color: var(--border-active); }
-  .file-drop input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-  .file-drop .icon   { font-size: var(--font-lg); display: block; margin-bottom: var(--space-1); opacity: .5; }
-  .file-drop p       { font-size: var(--font-xs); color: var(--text-dim); pointer-events: none; letter-spacing: .04em; }
-  .file-drop .file-name { font-size: var(--font-xs); color: var(--text-secondary); margin-top: var(--space-1); }
+.enc-dec {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s4);
+}
+@media (max-width: 810px) { .enc-dec { grid-template-columns: 1fr; } }
 
-  .btn {
-    width:           100%;
-    padding:         var(--space-3);
-    border-radius:   var(--radius);
-    border:          1px solid var(--border-active);
-    font-family:     var(--font-primary);
-    font-size:       var(--font-sm);
-    font-weight:     700;
-    letter-spacing:  .06em;
-    text-transform:  uppercase;
-    cursor:          pointer;
-    transition:      background var(--motion-instant), color var(--motion-instant), transform var(--motion-instant);
-    display:         flex;
-    align-items:     center;
-    justify-content: center;
-    gap:             var(--space-2);
-  }
-  .btn-primary {
-    background: var(--text-primary);
-    color:      #000000;
-  }
-  .btn-primary:hover         { background: var(--text-secondary); transform: translateY(-1px); }
-  .btn-primary:active        { transform: translateY(0); }
-  .btn-primary:disabled      { opacity: .35; cursor: not-allowed; transform: none; }
-  .btn-primary:focus-visible { outline: 1px solid var(--text-primary); outline-offset: 3px; }
+.panel {
+  background: var(--surface);
+  padding:    var(--s4);
+  box-shadow: var(--shadow-inset);
+}
+.panel h3 {
+  font-family:    var(--font-display);
+  font-size:      18px;
+  letter-spacing: .06em;
+  color:          var(--accent);
+  margin-bottom:  var(--s3);
+  padding-bottom: var(--s2);
+  border-bottom:  1px solid var(--border-subtle);
+}
 
-  /* ── result ── */
-  .result {
-    margin-top:    1rem;
-    padding:       var(--space-3) var(--space-4);
-    border-radius: var(--radius);
-    font-size:     var(--font-xs);
-    display:       none;
-    line-height:   1.6;
-  }
-  .result.ok  {
-    background: rgba(231,228,222,.05);
-    border:     1px solid var(--border-hover);
-    color:      var(--success);
-  }
-  .result.err {
-    background: rgba(231,228,222,.03);
-    border:     1px solid var(--border);
-    color:      var(--danger);
-    opacity:    .9;
-  }
-  .result pre {
-    white-space:   pre-wrap;
-    word-break:    break-all;
-    font-family:   var(--font-primary);
-    font-size:     var(--font-xs);
-    margin-top:    var(--space-2);
-    padding:       var(--space-3);
-    background:    rgba(0,0,0,.4);
-    border-radius: var(--space-1);
-  }
-  .download-btn {
-    display:        inline-flex;
-    align-items:    center;
-    gap:            var(--space-1);
-    margin-top:     var(--space-2);
-    padding:        var(--space-1) var(--space-3);
-    border-radius:  var(--radius);
-    background:     transparent;
-    border:         1px solid var(--border-hover);
-    color:          var(--text-secondary);
-    font-family:    var(--font-primary);
-    font-size:      var(--font-xs);
-    font-weight:    600;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    cursor:         pointer;
-    text-decoration: none;
-    transition:     border-color var(--motion-instant), color var(--motion-instant);
-  }
-  .download-btn:hover { border-color: var(--border-active); color: var(--text-primary); }
+/* ── Form elements ────────────────────────────────────────────── */
+label {
+  display:        block;
+  font-size:      var(--text-xs);
+  font-weight:    700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color:          var(--text-dim);
+  margin-bottom:  var(--s1);
+}
+input[type=text], input[type=password], input[type=url], input[type=number],
+textarea, select {
+  width:         100%;
+  height:        36px;
+  background:    rgba(20,18,15,.8);
+  border:        1px solid var(--border-subtle);
+  border-radius: 0;
+  color:         var(--text-primary);
+  padding:       0 var(--s2);
+  font-size:     var(--text-sm);
+  font-family:   var(--font-body);
+  font-weight:   500;
+  outline:       none;
+  transition:    border-color var(--dur) var(--ease);
+  margin-bottom: var(--s3);
+}
+textarea {
+  height:  auto;
+  padding: var(--s2);
+  resize:  vertical;
+  min-height: 72px;
+}
+select { padding: 0 var(--s2); }
+input:hover, textarea:hover                    { border-color: var(--border-strong); }
+input:focus, textarea:focus, select:focus      { border-color: var(--accent); }
+input::placeholder, textarea::placeholder      { color: var(--text-dim); }
 
-  /* ── footer ── */
-  footer {
-    border-top:  1px solid var(--border);
-    padding:     1.5rem 2rem;
-    text-align:  center;
-    color:       var(--text-dim);
-    font-size:   var(--font-xs);
-    letter-spacing: .04em;
-  }
-  footer a { color: var(--text-secondary); text-decoration: none; }
-  footer a:hover { color: var(--text-primary); }
+.file-drop {
+  border:        1px solid var(--border-subtle);
+  padding:       var(--s3) var(--s2);
+  text-align:    center;
+  cursor:        pointer;
+  transition:    border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+  margin-bottom: var(--s3);
+  position:      relative;
+  overflow:      hidden;
+}
+.file-drop:hover, .file-drop.over {
+  border-color: var(--accent);
+  background:   var(--accent-dim);
+}
+.file-drop:focus-within  { border-color: var(--accent); }
+.file-drop input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.file-drop .icon {
+  display:       block;
+  font-family:   var(--font-display);
+  font-size:     22px;
+  line-height:   1;
+  color:         var(--text-dim);
+  margin-bottom: var(--s1);
+}
+.file-drop p        { font-size: var(--text-xs); color: var(--text-dim); pointer-events: none; letter-spacing: .06em; }
+.file-drop .fname   { font-size: var(--text-xs); color: var(--accent); margin-top: var(--s1); }
 
-  /* ── loader ── */
-  .spinner {
-    display:       inline-block;
-    width: 12px; height: 12px;
-    border:        1.5px solid rgba(0,0,0,.25);
-    border-top-color: #000;
-    border-radius: 50%;
-    animation:     spin .6s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* ── Button ───────────────────────────────────────────────────── */
+.btn {
+  width:           100%;
+  height:          44px;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             var(--s1);
+  font-family:     var(--font-body);
+  font-size:       var(--text-xs);
+  font-weight:     700;
+  letter-spacing:  .1em;
+  text-transform:  uppercase;
+  border:          1px solid transparent;
+  cursor:          pointer;
+  transition:      background var(--dur) var(--ease),
+                   color var(--dur) var(--ease),
+                   border-color var(--dur) var(--ease),
+                   transform 150ms var(--ease);
+}
+.btn-primary {
+  background: var(--accent);
+  color:      #fff;
+  border-color: var(--accent);
+}
+.btn-primary:hover         { background: #b8390d; border-color: #b8390d; transform: translateY(-1px); }
+.btn-primary:active        { transform: translateY(0); }
+.btn-primary:disabled      { opacity: .4; cursor: not-allowed; transform: none; }
+.btn-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ── Result ───────────────────────────────────────────────────── */
+.result {
+  margin-top:    var(--s3);
+  padding:       var(--s2) var(--s3);
+  font-size:     var(--text-xs);
+  line-height:   var(--lead-body);
+  display:       none;
+  border-left:   3px solid;
+}
+.result.ok  {
+  background:   rgba(231,228,222,.04);
+  border-color: rgba(231,228,222,.5);
+  color:        var(--text-primary);
+}
+.result.err {
+  background:   var(--accent-dim);
+  border-color: var(--accent);
+  color:        var(--text-primary);
+}
+.result pre {
+  white-space:  pre-wrap;
+  word-break:   break-all;
+  font-family:  var(--font-body);
+  font-size:    var(--text-xs);
+  margin-top:   var(--s2);
+  padding:      var(--s2);
+  background:   rgba(20,18,15,.6);
+}
+.download-btn {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             var(--s1);
+  margin-top:      var(--s2);
+  height:          32px;
+  padding:         0 var(--s3);
+  background:      transparent;
+  border:          1px solid var(--border-strong);
+  font-family:     var(--font-body);
+  font-size:       var(--text-xs);
+  font-weight:     700;
+  letter-spacing:  .08em;
+  text-transform:  uppercase;
+  color:           var(--text-primary);
+  text-decoration: none;
+  cursor:          pointer;
+  transition:      border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.download-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Footer ───────────────────────────────────────────────────── */
+footer {
+  border-top:  1px solid var(--border-subtle);
+  padding:     var(--s4) var(--s5);
+  color:       var(--text-dim);
+  font-size:   var(--text-xs);
+  letter-spacing: .04em;
+}
+.footer-inner {
+  max-width: 1140px;
+  margin:    0 auto;
+  display:   flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap:       var(--s2);
+}
+footer a { color: var(--text-secondary); text-decoration: none; transition: color var(--dur) var(--ease); }
+footer a:hover { color: var(--accent); }
+.footer-sig {
+  font-family:    var(--font-display);
+  font-size:      18px;
+  letter-spacing: .04em;
+  color:          var(--text-primary);
+}
+.footer-sig span { color: var(--accent); }
+
+/* ── Loader ───────────────────────────────────────────────────── */
+.spinner {
+  display:       inline-block;
+  width:         12px; height: 12px;
+  border:        1.5px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation:     spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Scroll reveal ────────────────────────────────────────────── */
+.reveal {
+  opacity:   0;
+  transform: translateY(16px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none; opacity: 1; transform: none; }
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 810px) {
+  header { padding: var(--s1) var(--s3); }
+  .hero  { padding: var(--s4) var(--s3) var(--s3); }
+  .tabs-wrapper { padding: var(--s3) var(--s3) var(--s4); }
+  nav a  { display: none; }
+  nav a[href="https://github.com/deepmaha2006/steganography-toolkit"] { display: inline; }
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
 
+<a class="skip-link" href="#toolkit">Skip to toolkit</a>
+
 <header>
-  <div class="logo">INVISYNC<span class="logo-dot">.</span></div>
+  <div class="logo">INVIS<span class="logo-accent">YNC</span></div>
   <nav>
     <a href="#toolkit">Toolkit</a>
     <a href="https://github.com/deepmaha2006/steganography-toolkit" target="_blank" rel="noopener">GitHub</a>
@@ -386,13 +485,13 @@
   </nav>
 </header>
 
-<section class="hero" id="toolkit">
-  <p class="hero-label">Professional Steganography Toolkit</p>
-  <h1>Hide in plain sight.</h1>
-  <p>AES-256-GCM authenticated encryption with LSB steganography — embed secrets inside images, audio, QR codes, text &amp; PDFs.</p>
+<section class="hero reveal" id="toolkit">
+  <p class="hero-eyebrow">AES-256-GCM · LSB Steganography</p>
+  <h1>HIDE IN<br>PLAIN SIGHT.</h1>
+  <p>Military-grade steganography toolkit — encrypt and embed secrets inside images, audio, QR codes, text, and PDFs with zero visual trace.</p>
   <div class="pill-row">
-    <span class="pill">AES-256-GCM</span>
-    <span class="pill">PBKDF2 · 600k iters</span>
+    <span class="pill accent">AES-256-GCM</span>
+    <span class="pill accent">PBKDF2 · 600k iters</span>
     <span class="pill">PNG · BMP</span>
     <span class="pill">WAV · FLAC · MP3</span>
     <span class="pill">PDF · QR · Unicode</span>
@@ -400,104 +499,96 @@
 </section>
 
 <div class="tabs-wrapper">
-  <div class="tab-list" role="tablist">
-    <button class="tab-btn active" data-tab="image">Image</button>
-    <button class="tab-btn" data-tab="audio">Audio</button>
-    <button class="tab-btn" data-tab="text">Text</button>
-    <button class="tab-btn" data-tab="pdf">PDF</button>
-    <button class="tab-btn" data-tab="qr">QR Code</button>
+  <div class="tab-list" role="tablist" aria-label="Steganography channels">
+    <button class="tab-btn active" data-tab="image" role="tab" aria-selected="true"  aria-controls="tab-image">Image</button>
+    <button class="tab-btn"        data-tab="audio" role="tab" aria-selected="false" aria-controls="tab-audio">Audio</button>
+    <button class="tab-btn"        data-tab="text"  role="tab" aria-selected="false" aria-controls="tab-text">Text</button>
+    <button class="tab-btn"        data-tab="pdf"   role="tab" aria-selected="false" aria-controls="tab-pdf">PDF</button>
+    <button class="tab-btn"        data-tab="qr"    role="tab" aria-selected="false" aria-controls="tab-qr">QR Code</button>
   </div>
 
   <!-- IMAGE -->
-  <div class="card active" id="tab-image">
+  <div class="card active reveal" id="tab-image" role="tabpanel">
     <div class="card-header">
       <h2>Image Steganography</h2>
-      <p class="sub">LSB-encode a secret message into PNG or BMP pixels. Optionally encrypt with AES-256-GCM.</p>
+      <p class="sub">LSB-encode a secret into PNG or BMP pixels. Encrypt with AES-256-GCM via password.</p>
     </div>
     <div class="enc-dec">
       <div class="panel">
         <h3>Encode</h3>
-        <label>Cover Image (PNG or BMP)</label>
-        <div class="file-drop" id="img-enc-drop">
-          <input type="file" accept=".png,.bmp" id="img-enc-file" onchange="setFileName(this,'img-enc-name')">
+        <label for="img-enc-file">Cover image (PNG or BMP)</label>
+        <div class="file-drop">
+          <input type="file" accept=".png,.bmp" id="img-enc-file" aria-label="Upload cover image" onchange="setFileName(this,'img-enc-name')">
           <span class="icon">↑</span>
           <p>Drop file or click to browse</p>
-          <div class="file-name" id="img-enc-name"></div>
+          <div class="fname" id="img-enc-name"></div>
         </div>
-        <label>Secret Message</label>
+        <label for="img-enc-msg">Secret message</label>
         <textarea id="img-enc-msg" placeholder="Enter secret message…" rows="3"></textarea>
-        <label>Password (optional — encrypts with AES-256-GCM)</label>
+        <label for="img-enc-pass">Password (optional — AES-256-GCM)</label>
         <input type="password" id="img-enc-pass" placeholder="Leave blank for no encryption">
-        <button class="btn btn-primary" onclick="encodeImage()">
-          <span>Encode &amp; Download</span>
-        </button>
-        <div class="result" id="img-enc-result"></div>
+        <button class="btn btn-primary" onclick="encodeImage()">Encode &amp; Download</button>
+        <div class="result" id="img-enc-result" aria-live="polite"></div>
       </div>
       <div class="panel">
         <h3>Decode</h3>
-        <label>Stego Image (PNG or BMP)</label>
+        <label for="img-dec-file">Stego image (PNG or BMP)</label>
         <div class="file-drop">
-          <input type="file" accept=".png,.bmp" id="img-dec-file" onchange="setFileName(this,'img-dec-name')">
+          <input type="file" accept=".png,.bmp" id="img-dec-file" aria-label="Upload stego image" onchange="setFileName(this,'img-dec-name')">
           <span class="icon">↓</span>
           <p>Drop stego image or click to browse</p>
-          <div class="file-name" id="img-dec-name"></div>
+          <div class="fname" id="img-dec-name"></div>
         </div>
-        <label>Password (if encrypted)</label>
+        <label for="img-dec-pass">Password (if encrypted)</label>
         <input type="password" id="img-dec-pass" placeholder="Leave blank if not encrypted">
-        <button class="btn btn-primary" onclick="decodeImage()">
-          <span>Decode Message</span>
-        </button>
-        <div class="result" id="img-dec-result"></div>
+        <button class="btn btn-primary" onclick="decodeImage()">Decode Message</button>
+        <div class="result" id="img-dec-result" aria-live="polite"></div>
       </div>
     </div>
   </div>
 
   <!-- AUDIO -->
-  <div class="card" id="tab-audio">
+  <div class="card reveal" id="tab-audio" role="tabpanel">
     <div class="card-header">
       <h2>Audio Steganography</h2>
-      <p class="sub">LSB-encode a secret into WAV, FLAC, AIFF, or MP3 PCM samples. Output is always lossless WAV.</p>
+      <p class="sub">LSB-encode into WAV, FLAC, AIFF, or MP3 PCM samples. Output is always lossless WAV.</p>
     </div>
     <div class="enc-dec">
       <div class="panel">
         <h3>Encode</h3>
-        <label>Cover Audio (WAV / FLAC / AIFF / MP3)</label>
+        <label for="aud-enc-file">Cover audio (WAV / FLAC / AIFF / MP3)</label>
         <div class="file-drop">
-          <input type="file" accept=".wav,.flac,.aiff,.mp3" id="aud-enc-file" onchange="setFileName(this,'aud-enc-name')">
+          <input type="file" accept=".wav,.flac,.aiff,.mp3" id="aud-enc-file" aria-label="Upload cover audio" onchange="setFileName(this,'aud-enc-name')">
           <span class="icon">↑</span>
           <p>Drop audio file or click to browse</p>
-          <div class="file-name" id="aud-enc-name"></div>
+          <div class="fname" id="aud-enc-name"></div>
         </div>
-        <label>Secret Message</label>
+        <label for="aud-enc-msg">Secret message</label>
         <textarea id="aud-enc-msg" placeholder="Enter secret message…" rows="3"></textarea>
-        <label>Password (optional)</label>
+        <label for="aud-enc-pass">Password (optional)</label>
         <input type="password" id="aud-enc-pass" placeholder="Leave blank for no encryption">
-        <button class="btn btn-primary" onclick="encodeAudio()">
-          <span>Encode &amp; Download WAV</span>
-        </button>
-        <div class="result" id="aud-enc-result"></div>
+        <button class="btn btn-primary" onclick="encodeAudio()">Encode &amp; Download WAV</button>
+        <div class="result" id="aud-enc-result" aria-live="polite"></div>
       </div>
       <div class="panel">
         <h3>Decode</h3>
-        <label>Stego Audio (WAV / FLAC / AIFF)</label>
+        <label for="aud-dec-file">Stego audio (WAV / FLAC / AIFF)</label>
         <div class="file-drop">
-          <input type="file" accept=".wav,.flac,.aiff,.mp3" id="aud-dec-file" onchange="setFileName(this,'aud-dec-name')">
+          <input type="file" accept=".wav,.flac,.aiff,.mp3" id="aud-dec-file" aria-label="Upload stego audio" onchange="setFileName(this,'aud-dec-name')">
           <span class="icon">↓</span>
           <p>Drop stego audio or click to browse</p>
-          <div class="file-name" id="aud-dec-name"></div>
+          <div class="fname" id="aud-dec-name"></div>
         </div>
-        <label>Password (if encrypted)</label>
+        <label for="aud-dec-pass">Password (if encrypted)</label>
         <input type="password" id="aud-dec-pass" placeholder="Leave blank if not encrypted">
-        <button class="btn btn-primary" onclick="decodeAudio()">
-          <span>Decode Message</span>
-        </button>
-        <div class="result" id="aud-dec-result"></div>
+        <button class="btn btn-primary" onclick="decodeAudio()">Decode Message</button>
+        <div class="result" id="aud-dec-result" aria-live="polite"></div>
       </div>
     </div>
   </div>
 
   <!-- TEXT -->
-  <div class="card" id="tab-text">
+  <div class="card reveal" id="tab-text" role="tabpanel">
     <div class="card-header">
       <h2>Text Steganography</h2>
       <p class="sub">Zero-width Unicode characters hide a secret message invisibly inside any cover text.</p>
@@ -505,33 +596,29 @@
     <div class="enc-dec">
       <div class="panel">
         <h3>Encode</h3>
-        <label>Cover Text (visible)</label>
+        <label for="txt-enc-cover">Cover text (visible)</label>
         <textarea id="txt-enc-cover" placeholder="Hello, this is an innocent message!" rows="3"></textarea>
-        <label>Secret Message</label>
+        <label for="txt-enc-msg">Secret message</label>
         <textarea id="txt-enc-msg" placeholder="Enter secret message…" rows="3"></textarea>
-        <label>Password (optional)</label>
+        <label for="txt-enc-pass">Password (optional)</label>
         <input type="password" id="txt-enc-pass" placeholder="Leave blank for no encryption">
-        <button class="btn btn-primary" onclick="encodeText()">
-          <span>Encode Message</span>
-        </button>
-        <div class="result" id="txt-enc-result"></div>
+        <button class="btn btn-primary" onclick="encodeText()">Encode Message</button>
+        <div class="result" id="txt-enc-result" aria-live="polite"></div>
       </div>
       <div class="panel">
         <h3>Decode</h3>
-        <label>Stego Text (paste here)</label>
+        <label for="txt-dec-input">Stego text (paste here)</label>
         <textarea id="txt-dec-input" placeholder="Paste stego text here…" rows="5"></textarea>
-        <label>Password (if encrypted)</label>
+        <label for="txt-dec-pass">Password (if encrypted)</label>
         <input type="password" id="txt-dec-pass" placeholder="Leave blank if not encrypted">
-        <button class="btn btn-primary" onclick="decodeText()">
-          <span>Decode Message</span>
-        </button>
-        <div class="result" id="txt-dec-result"></div>
+        <button class="btn btn-primary" onclick="decodeText()">Decode Message</button>
+        <div class="result" id="txt-dec-result" aria-live="polite"></div>
       </div>
     </div>
   </div>
 
   <!-- PDF -->
-  <div class="card" id="tab-pdf">
+  <div class="card reveal" id="tab-pdf" role="tabpanel">
     <div class="card-header">
       <h2>PDF Steganography</h2>
       <p class="sub">Embeds invisible base64 text layer (new PDF) or injects into existing PDF metadata.</p>
@@ -539,84 +626,100 @@
     <div class="enc-dec">
       <div class="panel">
         <h3>Encode</h3>
-        <label>Cover PDF (optional — creates new PDF if omitted)</label>
+        <label for="pdf-enc-file">Cover PDF (optional — creates new PDF if omitted)</label>
         <div class="file-drop">
-          <input type="file" accept=".pdf" id="pdf-enc-file" onchange="setFileName(this,'pdf-enc-name')">
+          <input type="file" accept=".pdf" id="pdf-enc-file" aria-label="Upload cover PDF" onchange="setFileName(this,'pdf-enc-name')">
           <span class="icon">↑</span>
           <p>Drop existing PDF or click to browse (optional)</p>
-          <div class="file-name" id="pdf-enc-name"></div>
+          <div class="fname" id="pdf-enc-name"></div>
         </div>
-        <label>Secret Message</label>
+        <label for="pdf-enc-msg">Secret message</label>
         <textarea id="pdf-enc-msg" placeholder="Enter secret message…" rows="3"></textarea>
-        <label>Password (optional)</label>
+        <label for="pdf-enc-pass">Password (optional)</label>
         <input type="password" id="pdf-enc-pass" placeholder="Leave blank for no encryption">
-        <button class="btn btn-primary" onclick="encodePdf()">
-          <span>Encode &amp; Download PDF</span>
-        </button>
-        <div class="result" id="pdf-enc-result"></div>
+        <button class="btn btn-primary" onclick="encodePdf()">Encode &amp; Download PDF</button>
+        <div class="result" id="pdf-enc-result" aria-live="polite"></div>
       </div>
       <div class="panel">
         <h3>Decode</h3>
-        <label>Stego PDF</label>
+        <label for="pdf-dec-file">Stego PDF</label>
         <div class="file-drop">
-          <input type="file" accept=".pdf" id="pdf-dec-file" onchange="setFileName(this,'pdf-dec-name')">
+          <input type="file" accept=".pdf" id="pdf-dec-file" aria-label="Upload stego PDF" onchange="setFileName(this,'pdf-dec-name')">
           <span class="icon">↓</span>
           <p>Drop stego PDF or click to browse</p>
-          <div class="file-name" id="pdf-dec-name"></div>
+          <div class="fname" id="pdf-dec-name"></div>
         </div>
-        <label>Password (if encrypted)</label>
+        <label for="pdf-dec-pass">Password (if encrypted)</label>
         <input type="password" id="pdf-dec-pass" placeholder="Leave blank if not encrypted">
-        <button class="btn btn-primary" onclick="decodePdf()">
-          <span>Decode Message</span>
-        </button>
-        <div class="result" id="pdf-dec-result"></div>
+        <button class="btn btn-primary" onclick="decodePdf()">Decode Message</button>
+        <div class="result" id="pdf-dec-result" aria-live="polite"></div>
       </div>
     </div>
   </div>
 
   <!-- QR -->
-  <div class="card" id="tab-qr">
+  <div class="card reveal" id="tab-qr" role="tabpanel">
     <div class="card-header">
       <h2>QR Code Generator</h2>
       <p class="sub">Generate a scannable QR code from any URL — high error-correction (H level).</p>
     </div>
     <div class="panel" style="max-width:400px">
       <h3>Generate QR</h3>
-      <label>URL</label>
+      <label for="qr-url">URL</label>
       <input type="url" id="qr-url" placeholder="https://example.com">
-      <label>Scale (pixels per module)</label>
-      <input type="number" id="qr-scale" value="10" min="1" max="20" style="width:120px">
-      <button class="btn btn-primary" onclick="generateQr()">
-        <span>Generate &amp; Download QR</span>
-      </button>
-      <div class="result" id="qr-result"></div>
+      <label for="qr-scale">Scale (pixels per module)</label>
+      <input type="number" id="qr-scale" value="10" min="1" max="20" style="width:100px;display:inline-block">
+      <div style="margin-bottom:var(--s3)"></div>
+      <button class="btn btn-primary" onclick="generateQr()">Generate &amp; Download QR</button>
+      <div class="result" id="qr-result" aria-live="polite"></div>
     </div>
   </div>
 </div>
 
 <footer>
-  <p>Invisync &mdash; Professional Steganography Toolkit &mdash; <a href="https://github.com/deepmaha2006/steganography-toolkit" target="_blank" rel="noopener">GitHub</a> &mdash; MIT License &mdash; &copy; 2026 deepmaha2006</p>
-  <p style="margin-top:var(--space-2)">AES-256-GCM &nbsp;&middot;&nbsp; PBKDF2-HMAC-SHA256 (600,000 iters) &nbsp;&middot;&nbsp; LSB Steganography</p>
+  <div class="footer-inner">
+    <div class="footer-sig">INVIS<span>YNC</span></div>
+    <div>
+      <a href="https://github.com/deepmaha2006/steganography-toolkit" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      <a href="/api/docs" target="_blank">API Docs</a>
+      &nbsp;&middot;&nbsp; MIT License &nbsp;&middot;&nbsp; &copy; 2026 deepmaha2006
+    </div>
+    <div style="color:var(--text-dim)">AES-256-GCM &nbsp;&middot;&nbsp; PBKDF2 · 600k iters &nbsp;&middot;&nbsp; LSB</div>
+  </div>
 </footer>
 
 <script>
-  // Tab switching
+  /* ── Tabs ── */
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
       document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
       document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
     });
   });
 
-  // Drag-over highlight
+  /* ── Drag highlight ── */
   document.querySelectorAll('.file-drop').forEach(drop => {
-    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
-    drop.addEventListener('dragleave', () => drop.classList.remove('over'));
-    drop.addEventListener('drop',      () => drop.classList.remove('over'));
+    drop.addEventListener('dragover',  e => { e.preventDefault(); drop.classList.add('over'); });
+    drop.addEventListener('dragleave', ()  => drop.classList.remove('over'));
+    drop.addEventListener('drop',      ()  => drop.classList.remove('over'));
   });
 
+  /* ── Scroll reveal ── */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('is-visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  /* ── Helpers ── */
   function setFileName(input, nameId) {
     const el = document.getElementById(nameId);
     el.textContent = input.files[0] ? input.files[0].name : '';
@@ -625,165 +728,155 @@
   function showResult(id, ok, html) {
     const el = document.getElementById(id);
     el.className = 'result ' + (ok ? 'ok' : 'err');
-    el.innerHTML = html;
+    el.innerHTML  = html;
     el.style.display = 'block';
   }
 
   function setLoading(btn, loading) {
     if (loading) {
-      btn._orig = btn.innerHTML;
-      btn.innerHTML = '<span class="spinner"></span> Processing…';
-      btn.disabled = true;
+      btn._orig    = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>&nbsp;Processing…';
+      btn.disabled  = true;
     } else {
       btn.innerHTML = btn._orig;
-      btn.disabled = false;
+      btn.disabled  = false;
     }
   }
 
   async function postForm(url, formData, btn) {
     setLoading(btn, true);
     try {
-      const r = await fetch(url, { method: 'POST', body: formData });
-      return r;
+      return await fetch(url, { method: 'POST', body: formData });
     } finally {
       setLoading(btn, false);
     }
   }
 
-  // ── Image encode
+  /* ── Image encode ── */
   async function encodeImage() {
-    const btn = event.currentTarget;
+    const btn  = event.currentTarget;
     const file = document.getElementById('img-enc-file').files[0];
     const msg  = document.getElementById('img-enc-msg').value.trim();
     const pass = document.getElementById('img-enc-pass').value;
-    if (!file) return showResult('img-enc-result', false, 'Please select a cover image.');
-    if (!msg)  return showResult('img-enc-result', false, 'Please enter a message.');
+    if (!file) return showResult('img-enc-result', false, '✗ Select a cover image first.');
+    if (!msg)  return showResult('img-enc-result', false, '✗ Enter a secret message.');
     const fd = new FormData();
-    fd.append('cover', file);
-    fd.append('message', msg);
+    fd.append('cover', file); fd.append('message', msg);
     if (pass) fd.append('password', pass);
     const r = await postForm('/api/image/encode', fd, btn);
     if (r.ok) {
-      const blob = await r.blob();
-      const aUrl = URL.createObjectURL(blob);
-      const ext = file.name.endsWith('.bmp') ? '.bmp' : '.png';
+      const aUrl = URL.createObjectURL(await r.blob());
+      const ext  = file.name.endsWith('.bmp') ? '.bmp' : '.png';
       showResult('img-enc-result', true,
-        `✓ Encoded successfully<br><a class="download-btn" href="${aUrl}" download="stego${ext}">↓ stego${ext}</a>`);
+        `✓ Encoded — ready to download<br><a class="download-btn" href="${aUrl}" download="stego${ext}">↓ stego${ext}</a>`);
     } else {
       const j = await r.json().catch(() => ({ detail: r.statusText }));
       showResult('img-enc-result', false, `✗ ${j.detail || 'Error'}`);
     }
   }
 
-  // ── Image decode
+  /* ── Image decode ── */
   async function decodeImage() {
-    const btn = event.currentTarget;
+    const btn  = event.currentTarget;
     const file = document.getElementById('img-dec-file').files[0];
     const pass = document.getElementById('img-dec-pass').value;
-    if (!file) return showResult('img-dec-result', false, 'Please select a stego image.');
+    if (!file) return showResult('img-dec-result', false, '✗ Select a stego image first.');
     const fd = new FormData();
     fd.append('stego', file);
     if (pass) fd.append('password', pass);
     const r = await postForm('/api/image/decode', fd, btn);
     const j = await r.json().catch(() => ({ detail: r.statusText }));
     if (r.ok) showResult('img-dec-result', true, `✓ Message:<pre>${escHtml(j.message)}</pre>`);
-    else showResult('img-dec-result', false, `✗ ${j.detail || 'Error'}`);
+    else      showResult('img-dec-result', false, `✗ ${j.detail || 'Error'}`);
   }
 
-  // ── Audio encode
+  /* ── Audio encode ── */
   async function encodeAudio() {
-    const btn = event.currentTarget;
+    const btn  = event.currentTarget;
     const file = document.getElementById('aud-enc-file').files[0];
     const msg  = document.getElementById('aud-enc-msg').value.trim();
     const pass = document.getElementById('aud-enc-pass').value;
-    if (!file) return showResult('aud-enc-result', false, 'Please select a cover audio file.');
-    if (!msg)  return showResult('aud-enc-result', false, 'Please enter a message.');
+    if (!file) return showResult('aud-enc-result', false, '✗ Select a cover audio file first.');
+    if (!msg)  return showResult('aud-enc-result', false, '✗ Enter a secret message.');
     const fd = new FormData();
-    fd.append('cover', file);
-    fd.append('message', msg);
+    fd.append('cover', file); fd.append('message', msg);
     if (pass) fd.append('password', pass);
     const r = await postForm('/api/audio/encode', fd, btn);
     if (r.ok) {
-      const blob = await r.blob();
-      const aUrl = URL.createObjectURL(blob);
+      const aUrl = URL.createObjectURL(await r.blob());
       showResult('aud-enc-result', true,
-        `✓ Encoded successfully<br><a class="download-btn" href="${aUrl}" download="stego.wav">↓ stego.wav</a>`);
+        `✓ Encoded — ready to download<br><a class="download-btn" href="${aUrl}" download="stego.wav">↓ stego.wav</a>`);
     } else {
       const j = await r.json().catch(() => ({ detail: r.statusText }));
       showResult('aud-enc-result', false, `✗ ${j.detail || 'Error'}`);
     }
   }
 
-  // ── Audio decode
+  /* ── Audio decode ── */
   async function decodeAudio() {
-    const btn = event.currentTarget;
+    const btn  = event.currentTarget;
     const file = document.getElementById('aud-dec-file').files[0];
     const pass = document.getElementById('aud-dec-pass').value;
-    if (!file) return showResult('aud-dec-result', false, 'Please select a stego audio file.');
+    if (!file) return showResult('aud-dec-result', false, '✗ Select a stego audio file first.');
     const fd = new FormData();
     fd.append('stego', file);
     if (pass) fd.append('password', pass);
     const r = await postForm('/api/audio/decode', fd, btn);
     const j = await r.json().catch(() => ({ detail: r.statusText }));
     if (r.ok) showResult('aud-dec-result', true, `✓ Message:<pre>${escHtml(j.message)}</pre>`);
-    else showResult('aud-dec-result', false, `✗ ${j.detail || 'Error'}`);
+    else      showResult('aud-dec-result', false, `✗ ${j.detail || 'Error'}`);
   }
 
-  // ── Text encode
+  /* ── Text encode ── */
   async function encodeText() {
-    const btn = event.currentTarget;
+    const btn  = event.currentTarget;
     const cover = document.getElementById('txt-enc-cover').value;
     const msg   = document.getElementById('txt-enc-msg').value.trim();
     const pass  = document.getElementById('txt-enc-pass').value;
-    if (!cover.trim()) return showResult('txt-enc-result', false, 'Please enter cover text.');
-    if (!msg)          return showResult('txt-enc-result', false, 'Please enter a message.');
+    if (!cover.trim()) return showResult('txt-enc-result', false, '✗ Enter cover text first.');
+    if (!msg)          return showResult('txt-enc-result', false, '✗ Enter a secret message.');
     const fd = new FormData();
-    fd.append('cover', cover);
-    fd.append('message', msg);
+    fd.append('cover', cover); fd.append('message', msg);
     if (pass) fd.append('password', pass);
     const r = await postForm('/api/text/encode', fd, btn);
     const j = await r.json().catch(() => ({ detail: r.statusText }));
     if (r.ok) {
-      const blob = new Blob([j.stego_text], { type: 'text/plain' });
-      const aUrl = URL.createObjectURL(blob);
+      const aUrl = URL.createObjectURL(new Blob([j.stego_text], { type: 'text/plain' }));
       showResult('txt-enc-result', true,
-        `✓ Encoded — copy or download below<pre>${escHtml(j.stego_text)}</pre>` +
+        `✓ Encoded — copy or download<pre>${escHtml(j.stego_text)}</pre>` +
         `<a class="download-btn" href="${aUrl}" download="stego.txt">↓ stego.txt</a>`);
-    } else {
-      showResult('txt-enc-result', false, `✗ ${j.detail || 'Error'}`);
-    }
+    } else { showResult('txt-enc-result', false, `✗ ${j.detail || 'Error'}`); }
   }
 
-  // ── Text decode
+  /* ── Text decode ── */
   async function decodeText() {
     const btn  = event.currentTarget;
     const text = document.getElementById('txt-dec-input').value;
     const pass = document.getElementById('txt-dec-pass').value;
-    if (!text.trim()) return showResult('txt-dec-result', false, 'Please paste stego text.');
+    if (!text.trim()) return showResult('txt-dec-result', false, '✗ Paste stego text first.');
     const fd = new FormData();
     fd.append('stego_text', text);
     if (pass) fd.append('password', pass);
     const r = await postForm('/api/text/decode', fd, btn);
     const j = await r.json().catch(() => ({ detail: r.statusText }));
     if (r.ok) showResult('txt-dec-result', true, `✓ Message:<pre>${escHtml(j.message)}</pre>`);
-    else showResult('txt-dec-result', false, `✗ ${j.detail || 'Error'}`);
+    else      showResult('txt-dec-result', false, `✗ ${j.detail || 'Error'}`);
   }
 
-  // ── PDF encode
+  /* ── PDF encode ── */
   async function encodePdf() {
     const btn  = event.currentTarget;
     const file = document.getElementById('pdf-enc-file').files[0];
     const msg  = document.getElementById('pdf-enc-msg').value.trim();
     const pass = document.getElementById('pdf-enc-pass').value;
-    if (!msg) return showResult('pdf-enc-result', false, 'Please enter a message.');
+    if (!msg) return showResult('pdf-enc-result', false, '✗ Enter a secret message.');
     const fd = new FormData();
     fd.append('message', msg);
     if (pass) fd.append('password', pass);
     if (file) fd.append('cover', file);
     const r = await postForm('/api/pdf/encode', fd, btn);
     if (r.ok) {
-      const blob = await r.blob();
-      const aUrl = URL.createObjectURL(blob);
+      const aUrl = URL.createObjectURL(await r.blob());
       showResult('pdf-enc-result', true,
         `✓ Encoded<br><a class="download-btn" href="${aUrl}" download="stego.pdf">↓ stego.pdf</a>`);
     } else {
@@ -792,36 +885,34 @@
     }
   }
 
-  // ── PDF decode
+  /* ── PDF decode ── */
   async function decodePdf() {
     const btn  = event.currentTarget;
     const file = document.getElementById('pdf-dec-file').files[0];
     const pass = document.getElementById('pdf-dec-pass').value;
-    if (!file) return showResult('pdf-dec-result', false, 'Please select a stego PDF.');
+    if (!file) return showResult('pdf-dec-result', false, '✗ Select a stego PDF first.');
     const fd = new FormData();
     fd.append('stego', file);
     if (pass) fd.append('password', pass);
     const r = await postForm('/api/pdf/decode', fd, btn);
     const j = await r.json().catch(() => ({ detail: r.statusText }));
     if (r.ok) showResult('pdf-dec-result', true, `✓ Message:<pre>${escHtml(j.message)}</pre>`);
-    else showResult('pdf-dec-result', false, `✗ ${j.detail || 'Error'}`);
+    else      showResult('pdf-dec-result', false, `✗ ${j.detail || 'Error'}`);
   }
 
-  // ── QR generate
+  /* ── QR generate ── */
   async function generateQr() {
     const btn   = event.currentTarget;
     const url   = document.getElementById('qr-url').value.trim();
     const scale = document.getElementById('qr-scale').value;
-    if (!url) return showResult('qr-result', false, 'Please enter a URL.');
+    if (!url) return showResult('qr-result', false, '✗ Enter a URL first.');
     const fd = new FormData();
-    fd.append('url', url);
-    fd.append('scale', scale);
+    fd.append('url', url); fd.append('scale', scale);
     const r = await postForm('/api/qr/generate', fd, btn);
     if (r.ok) {
-      const blob = await r.blob();
-      const aUrl = URL.createObjectURL(blob);
+      const aUrl = URL.createObjectURL(await r.blob());
       showResult('qr-result', true,
-        `✓ QR generated<br><img src="${aUrl}" style="max-width:200px;margin-top:var(--space-2);border-radius:var(--space-1);display:block"><br>` +
+        `✓ QR generated<br><img src="${aUrl}" style="max-width:200px;margin-top:10px;display:block"><br>` +
         `<a class="download-btn" href="${aUrl}" download="qr.png">↓ qr.png</a>`);
     } else {
       const j = await r.json().catch(() => ({ detail: r.statusText }));
