@@ -1,0 +1,9 @@
+# Tell Vercel's builder to use requirements.txt + pip instead of uv
+pyproject.toml
+
+# Not needed in deployment
+test_all.py
+.github/
+*.md
+stego/__pycache__/
+__pycache__/

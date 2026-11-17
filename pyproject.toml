@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=74", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "invisync"
@@ -9,7 +9,7 @@ description = "Professional steganography toolkit — hide AES-256-GCM encrypted
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
-    { name = "deepmaha2006" },
+    { name = "deepmaha2006", email = "deepeshmahawar2006@gmail.com" },
 ]
 keywords = ["steganography", "cryptography", "security", "privacy", "aes", "lsb"]
 classifiers = [
