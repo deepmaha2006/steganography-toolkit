@@ -14,13 +14,16 @@ Security measures implemented:
 """
 
 import io
+import json
 import os
 import re
 import tempfile
+import uuid
+from datetime import date
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -32,6 +35,112 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 VERSION = "1.0.0"
 MAX_UPLOAD_BYTES = 50 * 1024 * 1024   # 50 MB
+
+# ---------------------------------------------------------------------------
+# API key + token system
+# ---------------------------------------------------------------------------
+
+DEMO_KEY        = "inv_demo_free_2026"
+DEMO_DAILY_LIMIT = 100
+
+# Live keys read from env: INVISYNC_API_KEYS=inv_live_xxx:1000,inv_live_yyy:5000
+# Format: key:balance  (comma-separated pairs)
+_live_keys: dict[str, int] = {}
+_raw = os.environ.get("INVISYNC_API_KEYS", "")
+for _pair in _raw.split(","):
+    _pair = _pair.strip()
+    if ":" in _pair:
+        _k, _v = _pair.rsplit(":", 1)
+        try:
+            _live_keys[_k.strip()] = int(_v.strip())
+        except ValueError:
+            pass
+
+# In-memory usage store (resets on cold start — good enough for serverless demo)
+# {key: {"date": "2026-11-17", "used": 42}}
+_usage: dict[str, dict] = {}
+
+TOKEN_COST = {
+    "image_encode":  10,
+    "image_decode":   5,
+    "audio_encode":  20,
+    "audio_decode":  10,
+    "qr_encode":     10,
+    "qr_decode":      5,
+    "qr_generate":    2,
+    "text_encode":    5,
+    "text_decode":    2,
+    "pdf_encode":    10,
+    "pdf_decode":     5,
+}
+
+
+def _resolve_key(x_api_key: Optional[str]) -> tuple[str, str, int]:
+    """Return (key, plan, balance). Raises 401 if key is invalid."""
+    if not x_api_key:
+        return "__anon__", "none", 0
+
+    if x_api_key == DEMO_KEY:
+        today = str(date.today())
+        rec = _usage.setdefault(DEMO_KEY, {"date": today, "used": 0})
+        if rec["date"] != today:
+            rec["date"] = today
+            rec["used"] = 0
+        return DEMO_KEY, "free", max(0, DEMO_DAILY_LIMIT - rec["used"])
+
+    if x_api_key in _live_keys:
+        used = _usage.get(x_api_key, {}).get("used", 0)
+        balance = max(0, _live_keys[x_api_key] - used)
+        plan = "starter" if _live_keys[x_api_key] <= 1000 else \
+               "growth"  if _live_keys[x_api_key] <= 5000 else "pro"
+        return x_api_key, plan, balance
+
+    raise HTTPException(401, "Invalid API key — get one at https://invisync.vercel.app/developer")
+
+
+def _charge(key: str, operation: str) -> int:
+    """Deduct tokens; raise 402 if insufficient. Returns tokens_used."""
+    if key == "__anon__":
+        return 0
+    cost = TOKEN_COST.get(operation, 5)
+    if key == DEMO_KEY:
+        today = str(date.today())
+        rec = _usage.setdefault(DEMO_KEY, {"date": today, "used": 0})
+        if rec["date"] != today:
+            rec["date"] = today
+            rec["used"] = 0
+        if rec["used"] + cost > DEMO_DAILY_LIMIT:
+            raise HTTPException(402, f"Demo key daily limit ({DEMO_DAILY_LIMIT} tokens) reached. "
+                                "Request a live key at https://invisync.vercel.app/developer")
+        rec["used"] += cost
+        return cost
+    if key in _live_keys:
+        rec = _usage.setdefault(key, {"used": 0})
+        total_used = rec["used"] + cost
+        if total_used > _live_keys[key]:
+            raise HTTPException(402, "Insufficient token balance — top up at https://invisync.vercel.app/developer")
+        rec["used"] = total_used
+        return cost
+    return 0
+
+
+def _token_headers(key: str, plan: str, used: int) -> dict:
+    if key == "__anon__":
+        return {}
+    if key == DEMO_KEY:
+        rec = _usage.get(DEMO_KEY, {"used": used})
+        remaining = max(0, DEMO_DAILY_LIMIT - rec["used"])
+    elif key in _live_keys:
+        rec = _usage.get(key, {"used": used})
+        remaining = max(0, _live_keys[key] - rec["used"])
+    else:
+        remaining = 0
+    return {
+        "X-Tokens-Used":      str(used),
+        "X-Tokens-Remaining": str(remaining),
+        "X-Plan":             plan,
+        "X-Request-Id":       f"req_{uuid.uuid4().hex[:12]}",
+    }
 
 _ALLOWED_IMAGE_EXT = {".png", ".bmp"}
 _ALLOWED_AUDIO_EXT = {".wav", ".flac", ".aiff", ".mp3"}
@@ -90,7 +199,8 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "Accept"],
+    allow_headers=["Content-Type", "Accept", "X-API-Key", "Authorization"],
+    expose_headers=["X-Tokens-Used", "X-Tokens-Remaining", "X-Plan", "X-Request-Id"],
     max_age=600,
 )
 
@@ -169,6 +279,39 @@ async def root():
     return HTMLResponse("<h1>Invisync API</h1><p>See <a href='/api/docs'>/api/docs</a></p>")
 
 
+@app.get("/developer", response_class=HTMLResponse)
+async def developer_page():
+    page = _static_dir / "developer.html"
+    if page.exists():
+        return HTMLResponse(page.read_text(encoding="utf-8"))
+    return HTMLResponse("<h1>Developer</h1>")
+
+
+@app.post("/api/key-request")
+async def key_request(request: Request):
+    """Log an API key request (body: {name, email, project, plan, notes})."""
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(400, "Invalid JSON body")
+    name  = str(body.get("name", "")).strip()[:100]
+    email = str(body.get("email", "")).strip()[:200]
+    plan  = str(body.get("plan", "")).strip()[:50]
+    if not name or not email or "@" not in email:
+        raise HTTPException(400, "name and valid email are required")
+    # In production: send email notification or log to DB.
+    # For now, log to stdout (visible in Vercel function logs).
+    print(json.dumps({
+        "event": "key_request",
+        "name": name,
+        "email": email,
+        "project": str(body.get("project", ""))[:300],
+        "plan": plan,
+        "notes": str(body.get("notes", ""))[:500],
+    }))
+    return JSONResponse({"status": "received", "message": "Key request logged. Email incoming within 24h."})
+
+
 # ---------------------------------------------------------------------------
 # image endpoints
 # ---------------------------------------------------------------------------
@@ -178,7 +321,9 @@ async def image_encode(
     cover: UploadFile = File(..., description="Cover image (PNG or BMP)"),
     message: Optional[str] = Form(None),
     password: Optional[str] = Form(None),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
+    key, plan, _ = _resolve_key(x_api_key)
     cover_data, cover_ext = await _read_upload(cover, "Cover image")
     if cover_ext not in _ALLOWED_IMAGE_EXT:
         raise HTTPException(422, f"Cover must be PNG or BMP, got '{cover_ext}'")
@@ -203,10 +348,14 @@ async def image_encode(
         except ValueError as e:
             raise HTTPException(422, str(e))
 
+        used = _charge(key, "image_encode")
         return StreamingResponse(
             io.BytesIO(out_path.read_bytes()),
             media_type="image/png" if cover_ext == ".png" else "image/bmp",
-            headers={"Content-Disposition": f"attachment; filename=stego{cover_ext}"},
+            headers={
+                "Content-Disposition": f"attachment; filename=stego{cover_ext}",
+                **_token_headers(key, plan, used),
+            },
         )
 
 
@@ -214,7 +363,9 @@ async def image_encode(
 async def image_decode(
     stego: UploadFile = File(..., description="Stego image (PNG or BMP)"),
     password: Optional[str] = Form(None),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
+    key, plan, _ = _resolve_key(x_api_key)
     stego_data, stego_ext = await _read_upload(stego, "Stego image")
     if stego_ext not in _ALLOWED_IMAGE_EXT:
         raise HTTPException(422, f"Image must be PNG or BMP, got '{stego_ext}'")
@@ -236,10 +387,13 @@ async def image_decode(
         except ValueError:
             raise HTTPException(422, "Decryption failed — wrong password or corrupt data")
 
+    used = _charge(key, "image_decode")
     try:
-        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)})
+        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)},
+                            headers=_token_headers(key, plan, used))
     except UnicodeDecodeError:
-        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)})
+        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)},
+                            headers=_token_headers(key, plan, used))
 
 
 # ---------------------------------------------------------------------------
@@ -251,7 +405,9 @@ async def audio_encode(
     cover: UploadFile = File(..., description="Cover audio (WAV, FLAC, AIFF, or MP3)"),
     message: Optional[str] = Form(None),
     password: Optional[str] = Form(None),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
+    key, plan, _ = _resolve_key(x_api_key)
     cover_data, cover_ext = await _read_upload(cover, "Cover audio")
     if cover_ext not in _ALLOWED_AUDIO_EXT:
         raise HTTPException(422, f"Audio must be WAV/FLAC/AIFF/MP3, got '{cover_ext}'")
@@ -265,12 +421,9 @@ async def audio_encode(
         from stego.crypto import encrypt
         payload = encrypt(payload, password)
 
-    # Output is always WAV (lossless)
-    out_ext = ".wav"
-
     with tempfile.TemporaryDirectory() as tmp:
         cover_path = Path(tmp) / f"cover{cover_ext}"
-        out_path   = Path(tmp) / f"stego{out_ext}"
+        out_path   = Path(tmp) / "stego.wav"
         cover_path.write_bytes(cover_data)
 
         try:
@@ -281,10 +434,12 @@ async def audio_encode(
         except ImportError as e:
             raise HTTPException(503, str(e))
 
+        used = _charge(key, "audio_encode")
         return StreamingResponse(
             io.BytesIO(out_path.read_bytes()),
             media_type="audio/wav",
-            headers={"Content-Disposition": "attachment; filename=stego.wav"},
+            headers={"Content-Disposition": "attachment; filename=stego.wav",
+                     **_token_headers(key, plan, used)},
         )
 
 
@@ -292,7 +447,9 @@ async def audio_encode(
 async def audio_decode(
     stego: UploadFile = File(..., description="Stego audio (WAV, FLAC, or AIFF)"),
     password: Optional[str] = Form(None),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
+    key, plan, _ = _resolve_key(x_api_key)
     stego_data, stego_ext = await _read_upload(stego, "Stego audio")
     if stego_ext not in _ALLOWED_AUDIO_EXT:
         raise HTTPException(422, f"Audio must be WAV/FLAC/AIFF/MP3, got '{stego_ext}'")
@@ -314,10 +471,13 @@ async def audio_decode(
         except ValueError:
             raise HTTPException(422, "Decryption failed — wrong password or corrupt data")
 
+    used = _charge(key, "audio_decode")
     try:
-        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)})
+        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)},
+                            headers=_token_headers(key, plan, used))
     except UnicodeDecodeError:
-        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)})
+        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)},
+                            headers=_token_headers(key, plan, used))
 
 
 # ---------------------------------------------------------------------------
@@ -329,7 +489,9 @@ async def text_encode(
     cover: str = Form(..., description="Visible cover text"),
     message: str = Form(..., description="Secret message to hide"),
     password: Optional[str] = Form(None),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
+    key, plan, _ = _resolve_key(x_api_key)
     if not cover.strip():
         raise HTTPException(400, "cover text cannot be empty")
     if not message.strip():
@@ -342,14 +504,18 @@ async def text_encode(
 
     from stego import text_stego
     stego_text = text_stego.encode(cover, payload)
-    return JSONResponse({"stego_text": stego_text, "size_bytes": len(payload)})
+    used = _charge(key, "text_encode")
+    return JSONResponse({"stego_text": stego_text, "size_bytes": len(payload)},
+                        headers=_token_headers(key, plan, used))
 
 
 @app.post("/api/text/decode")
 async def text_decode(
     stego_text: str = Form(..., description="Text containing hidden payload"),
     password: Optional[str] = Form(None),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
+    key, plan, _ = _resolve_key(x_api_key)
     if not stego_text:
         raise HTTPException(400, "stego_text cannot be empty")
 
@@ -366,10 +532,13 @@ async def text_decode(
         except ValueError:
             raise HTTPException(422, "Decryption failed — wrong password or corrupt data")
 
+    used = _charge(key, "text_decode")
     try:
-        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)})
+        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)},
+                            headers=_token_headers(key, plan, used))
     except UnicodeDecodeError:
-        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)})
+        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)},
+                            headers=_token_headers(key, plan, used))
 
 
 # ---------------------------------------------------------------------------
@@ -382,7 +551,9 @@ async def pdf_encode(
     password: Optional[str] = Form(None),
     visible_text: str = Form("Report"),
     cover: Optional[UploadFile] = File(None, description="Existing PDF (optional)"),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
+    key, plan, _ = _resolve_key(x_api_key)
     if not message.strip():
         raise HTTPException(400, "message cannot be empty")
 
@@ -409,10 +580,12 @@ async def pdf_encode(
         except Exception as e:
             raise HTTPException(422, str(e))
 
+        used = _charge(key, "pdf_encode")
         return StreamingResponse(
             io.BytesIO(out_path.read_bytes()),
             media_type="application/pdf",
-            headers={"Content-Disposition": "attachment; filename=stego.pdf"},
+            headers={"Content-Disposition": "attachment; filename=stego.pdf",
+                     **_token_headers(key, plan, used)},
         )
 
 
@@ -420,7 +593,9 @@ async def pdf_encode(
 async def pdf_decode(
     stego: UploadFile = File(..., description="Stego PDF"),
     password: Optional[str] = Form(None),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
+    key, plan, _ = _resolve_key(x_api_key)
     stego_data, stego_ext = await _read_upload(stego, "Stego PDF")
     if stego_ext != ".pdf":
         raise HTTPException(422, "File must be a PDF")
@@ -442,10 +617,13 @@ async def pdf_decode(
         except ValueError:
             raise HTTPException(422, "Decryption failed — wrong password or corrupt data")
 
+    used = _charge(key, "pdf_decode")
     try:
-        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)})
+        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)},
+                            headers=_token_headers(key, plan, used))
     except UnicodeDecodeError:
-        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)})
+        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)},
+                            headers=_token_headers(key, plan, used))
 
 
 # ---------------------------------------------------------------------------
@@ -456,7 +634,9 @@ async def pdf_decode(
 async def qr_generate(
     url: str = Form(..., description="URL to encode in QR"),
     scale: int = Form(10),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
+    key, plan, _ = _resolve_key(x_api_key)
     if not url.startswith(("http://", "https://")):
         raise HTTPException(400, "URL must start with http:// or https://")
     if not 1 <= scale <= 20:
@@ -466,10 +646,12 @@ async def qr_generate(
         out_path = Path(tmp) / "qr.png"
         from stego import qr_stego
         qr_stego.generate_qr(url, out_path, scale)
+        used = _charge(key, "qr_generate")
         return StreamingResponse(
             io.BytesIO(out_path.read_bytes()),
             media_type="image/png",
-            headers={"Content-Disposition": "attachment; filename=qr.png"},
+            headers={"Content-Disposition": "attachment; filename=qr.png",
+                     **_token_headers(key, plan, used)},
         )
 
 
@@ -479,8 +661,10 @@ async def qr_encode(
     message: str = Form(..., description="Secret message to hide inside the QR image"),
     scale: int = Form(10),
     password: Optional[str] = Form(None),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
     """Generate a scannable QR code for *url* and embed *message* in its pixel LSBs."""
+    key, plan, _ = _resolve_key(x_api_key)
     if not url.startswith(("http://", "https://")):
         raise HTTPException(400, "URL must start with http:// or https://")
     if not 1 <= scale <= 20:
@@ -502,10 +686,12 @@ async def qr_encode(
             qr_stego.encode(qr_path, payload, out_path)
         except ValueError as e:
             raise HTTPException(422, str(e))
+        used = _charge(key, "qr_encode")
         return StreamingResponse(
             io.BytesIO(out_path.read_bytes()),
             media_type="image/png",
-            headers={"Content-Disposition": "attachment; filename=stego_qr.png"},
+            headers={"Content-Disposition": "attachment; filename=stego_qr.png",
+                     **_token_headers(key, plan, used)},
         )
 
 
@@ -513,8 +699,10 @@ async def qr_encode(
 async def qr_decode(
     stego: UploadFile = File(..., description="Stego QR image (PNG)"),
     password: Optional[str] = Form(None),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
 ):
     """Extract the hidden message from a stego QR image."""
+    key, plan, _ = _resolve_key(x_api_key)
     stego_data, stego_ext = await _read_upload(stego, "Stego QR image")
     if stego_ext != ".png":
         raise HTTPException(422, "QR stego image must be PNG")
@@ -536,10 +724,13 @@ async def qr_decode(
         except ValueError:
             raise HTTPException(422, "Decryption failed — wrong password or corrupt data")
 
+    used = _charge(key, "qr_decode")
     try:
-        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)})
+        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)},
+                            headers=_token_headers(key, plan, used))
     except UnicodeDecodeError:
-        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)})
+        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)},
+                            headers=_token_headers(key, plan, used))
 
 
 if __name__ == "__main__":
