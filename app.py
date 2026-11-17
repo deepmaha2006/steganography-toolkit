@@ -63,9 +63,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline'; "
-            "style-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             "img-src 'self' data: blob:; "
-            "font-src 'self'; "
+            "font-src 'self' https://fonts.gstatic.com; "
             "connect-src 'self'; "
             "frame-ancestors 'none'"
         )
@@ -471,6 +471,75 @@ async def qr_generate(
             media_type="image/png",
             headers={"Content-Disposition": "attachment; filename=qr.png"},
         )
+
+
+@app.post("/api/qr/encode")
+async def qr_encode(
+    url: str = Form(..., description="URL to encode in QR (QR stays scannable)"),
+    message: str = Form(..., description="Secret message to hide inside the QR image"),
+    scale: int = Form(10),
+    password: Optional[str] = Form(None),
+):
+    """Generate a scannable QR code for *url* and embed *message* in its pixel LSBs."""
+    if not url.startswith(("http://", "https://")):
+        raise HTTPException(400, "URL must start with http:// or https://")
+    if not 1 <= scale <= 20:
+        raise HTTPException(400, "scale must be between 1 and 20")
+    if not message.strip():
+        raise HTTPException(400, "message cannot be empty")
+
+    payload = message.encode("utf-8")
+    if password:
+        from stego.crypto import encrypt
+        payload = encrypt(payload, password)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        qr_path  = Path(tmp) / "qr.png"
+        out_path = Path(tmp) / "stego_qr.png"
+        from stego import qr_stego
+        qr_stego.generate_qr(url, qr_path, scale)
+        try:
+            qr_stego.encode(qr_path, payload, out_path)
+        except ValueError as e:
+            raise HTTPException(422, str(e))
+        return StreamingResponse(
+            io.BytesIO(out_path.read_bytes()),
+            media_type="image/png",
+            headers={"Content-Disposition": "attachment; filename=stego_qr.png"},
+        )
+
+
+@app.post("/api/qr/decode")
+async def qr_decode(
+    stego: UploadFile = File(..., description="Stego QR image (PNG)"),
+    password: Optional[str] = Form(None),
+):
+    """Extract the hidden message from a stego QR image."""
+    stego_data, stego_ext = await _read_upload(stego, "Stego QR image")
+    if stego_ext != ".png":
+        raise HTTPException(422, "QR stego image must be PNG")
+    _check_image_magic(stego_data, ".png")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        stego_path = Path(tmp) / "stego_qr.png"
+        stego_path.write_bytes(stego_data)
+        try:
+            from stego import qr_stego
+            payload = qr_stego.decode(stego_path)
+        except ValueError as e:
+            raise HTTPException(422, str(e))
+
+    if password:
+        try:
+            from stego.crypto import decrypt
+            payload = decrypt(payload, password)
+        except ValueError:
+            raise HTTPException(422, "Decryption failed — wrong password or corrupt data")
+
+    try:
+        return JSONResponse({"message": payload.decode("utf-8"), "size_bytes": len(payload)})
+    except UnicodeDecodeError:
+        return JSONResponse({"message": payload.hex(), "binary": True, "size_bytes": len(payload)})
 
 
 if __name__ == "__main__":

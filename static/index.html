@@ -685,7 +685,7 @@ footer a:hover { color: var(--accent); }
           <span class="ch-badge web">Web + CLI</span>
         </div>
         <div class="ch-formats">PNG (ECC H level)</div>
-        <p class="ch-desc">Exploits QR Reed-Solomon error-correction redundancy. The generated QR still scans to its original URL, but its pixel LSBs carry a hidden binary payload.</p>
+        <p class="ch-desc">Generate a real, scannable QR for any URL, then embed a secret in the PNG pixel LSBs. QR ECC H level tolerates 30% module damage — sub-pixel LSB flips are far below that threshold, so the QR remains fully scannable.</p>
         <div class="ch-capacity">Capacity: <span>Varies by QR scale (10px default)</span></div>
       </div>
 
@@ -759,7 +759,7 @@ footer a:hover { color: var(--accent); }
 </div>
 
 <div class="tabs-wrapper" id="toolkit">
-  <p class="section-label" style="margin-bottom:var(--s3)">Web toolkit — 5 channels (image · audio · text · pdf · qr)</p>
+  <p class="section-label" style="margin-bottom:var(--s3)">Web toolkit — 5 channels with encode &amp; decode (image · audio · text · pdf · qr)</p>
   <div class="tab-list" role="tablist" aria-label="Steganography channels">
     <button class="tab-btn active" data-tab="image" role="tab" aria-selected="true"  aria-controls="tab-image">Image</button>
     <button class="tab-btn"        data-tab="audio" role="tab" aria-selected="false" aria-controls="tab-audio">Audio</button>
@@ -921,18 +921,47 @@ footer a:hover { color: var(--accent); }
   <!-- QR -->
   <div class="card reveal" id="tab-qr" role="tabpanel">
     <div class="card-header">
-      <h2>QR Code Generator</h2>
-      <p class="sub">Generate a scannable QR code from any URL — high error-correction (H level).</p>
+      <h2>QR Code Steganography</h2>
+      <p class="sub">Generate a real, scannable QR code for any URL — then hide a secret inside its pixels using LSB encoding. QR error-correction (H level, 30% recovery) keeps the code scannable after the embedding.</p>
     </div>
-    <div class="panel" style="max-width:400px">
-      <h3>Generate QR</h3>
-      <label for="qr-url">URL</label>
-      <input type="url" id="qr-url" placeholder="https://example.com">
-      <label for="qr-scale">Scale (pixels per module)</label>
-      <input type="number" id="qr-scale" value="10" min="1" max="20" style="width:100px;display:inline-block">
-      <div style="margin-bottom:var(--s3)"></div>
-      <button class="btn btn-primary" onclick="generateQr()">Generate &amp; Download QR</button>
-      <div class="result" id="qr-result" aria-live="polite"></div>
+    <div class="enc-dec">
+      <div class="panel">
+        <h3>Encode — Generate &amp; Hide</h3>
+        <label for="qr-enc-url">URL for QR code (stays scannable)</label>
+        <input type="url" id="qr-enc-url" placeholder="https://example.com">
+        <label for="qr-enc-msg">Secret message to hide inside QR</label>
+        <textarea id="qr-enc-msg" placeholder="Enter secret message…" rows="3"></textarea>
+        <label for="qr-enc-pass">Password (optional — AES-256-GCM)</label>
+        <input type="password" id="qr-enc-pass" placeholder="Leave blank for no encryption">
+        <label for="qr-enc-scale">Scale (pixels per module, 1–20)</label>
+        <input type="number" id="qr-enc-scale" value="10" min="1" max="20" style="width:90px;margin-bottom:var(--s3)">
+        <button class="btn btn-primary" onclick="encodeQr()">Generate Stego QR</button>
+        <div class="result" id="qr-enc-result" aria-live="polite"></div>
+      </div>
+      <div class="panel">
+        <h3>Decode — Extract Secret</h3>
+        <label for="qr-dec-file">Stego QR image (PNG)</label>
+        <div class="file-drop">
+          <input type="file" accept=".png" id="qr-dec-file" aria-label="Upload stego QR image" onchange="setFileName(this,'qr-dec-name')">
+          <span class="icon">↓</span>
+          <p>Drop stego QR PNG or click to browse</p>
+          <div class="fname" id="qr-dec-name"></div>
+        </div>
+        <label for="qr-dec-pass">Password (if encrypted)</label>
+        <input type="password" id="qr-dec-pass" placeholder="Leave blank if not encrypted">
+        <button class="btn btn-primary" onclick="decodeQr()">Decode Hidden Message</button>
+        <div class="result" id="qr-dec-result" aria-live="polite"></div>
+        <div style="margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--border-subtle)">
+          <p style="font-size:10px;color:var(--text-dim);letter-spacing:.05em">
+            <strong style="color:var(--text-secondary)">Plain QR generator</strong> — just the QR, no hidden data:
+          </p>
+          <div style="display:flex;gap:var(--s2);margin-top:var(--s1);align-items:center;flex-wrap:wrap">
+            <input type="url" id="qr-plain-url" placeholder="https://example.com" style="flex:1;min-width:0;margin-bottom:0">
+            <button class="btn btn-primary" style="width:auto;padding:0 var(--s3);flex-shrink:0" onclick="generateQr()">↓ QR</button>
+          </div>
+          <div class="result" id="qr-plain-result" aria-live="polite"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1161,23 +1190,64 @@ footer a:hover { color: var(--accent); }
     else      showResult('pdf-dec-result', false, `✗ ${j.detail || 'Error'}`);
   }
 
-  /* ── QR generate ── */
+  /* ── QR encode (generate + hide secret) ── */
+  async function encodeQr() {
+    const btn   = event.currentTarget;
+    const url   = document.getElementById('qr-enc-url').value.trim();
+    const msg   = document.getElementById('qr-enc-msg').value.trim();
+    const pass  = document.getElementById('qr-enc-pass').value;
+    const scale = document.getElementById('qr-enc-scale').value;
+    if (!url)  return showResult('qr-enc-result', false, '✗ Enter a URL for the QR code.');
+    if (!msg)  return showResult('qr-enc-result', false, '✗ Enter a secret message to hide.');
+    if (!url.startsWith('http')) return showResult('qr-enc-result', false, '✗ URL must start with http:// or https://');
+    const fd = new FormData();
+    fd.append('url', url); fd.append('message', msg); fd.append('scale', scale);
+    if (pass) fd.append('password', pass);
+    const r = await postForm('/api/qr/encode', fd, btn);
+    if (r.ok) {
+      const aUrl = URL.createObjectURL(await r.blob());
+      showResult('qr-enc-result', true,
+        `✓ Stego QR generated — scan it to open <strong>${escHtml(url)}</strong>, decode it here to read the hidden message<br>` +
+        `<img src="${aUrl}" style="max-width:220px;margin-top:var(--s2);display:block;image-rendering:pixelated"><br>` +
+        `<a class="download-btn" href="${aUrl}" download="stego_qr.png">↓ stego_qr.png</a>`);
+    } else {
+      const j = await r.json().catch(() => ({ detail: r.statusText }));
+      showResult('qr-enc-result', false, `✗ ${j.detail || 'Error'}`);
+    }
+  }
+
+  /* ── QR decode (extract hidden message) ── */
+  async function decodeQr() {
+    const btn  = event.currentTarget;
+    const file = document.getElementById('qr-dec-file').files[0];
+    const pass = document.getElementById('qr-dec-pass').value;
+    if (!file) return showResult('qr-dec-result', false, '✗ Upload a stego QR PNG first.');
+    const fd = new FormData();
+    fd.append('stego', file);
+    if (pass) fd.append('password', pass);
+    const r = await postForm('/api/qr/decode', fd, btn);
+    const j = await r.json().catch(() => ({ detail: r.statusText }));
+    if (r.ok) showResult('qr-dec-result', true, `✓ Hidden message:<pre>${escHtml(j.message)}</pre>`);
+    else      showResult('qr-dec-result', false, `✗ ${j.detail || 'Error'}`);
+  }
+
+  /* ── QR plain generate (no hidden data) ── */
   async function generateQr() {
     const btn   = event.currentTarget;
-    const url   = document.getElementById('qr-url').value.trim();
-    const scale = document.getElementById('qr-scale').value;
-    if (!url) return showResult('qr-result', false, '✗ Enter a URL first.');
+    const url   = document.getElementById('qr-plain-url').value.trim();
+    if (!url) return showResult('qr-plain-result', false, '✗ Enter a URL.');
+    if (!url.startsWith('http')) return showResult('qr-plain-result', false, '✗ URL must start with http:// or https://');
     const fd = new FormData();
-    fd.append('url', url); fd.append('scale', scale);
+    fd.append('url', url); fd.append('scale', '10');
     const r = await postForm('/api/qr/generate', fd, btn);
     if (r.ok) {
       const aUrl = URL.createObjectURL(await r.blob());
-      showResult('qr-result', true,
-        `✓ QR generated<br><img src="${aUrl}" style="max-width:200px;margin-top:10px;display:block"><br>` +
+      showResult('qr-plain-result', true,
+        `<img src="${aUrl}" style="max-width:160px;margin-top:var(--s2);display:block;image-rendering:pixelated"><br>` +
         `<a class="download-btn" href="${aUrl}" download="qr.png">↓ qr.png</a>`);
     } else {
       const j = await r.json().catch(() => ({ detail: r.statusText }));
-      showResult('qr-result', false, `✗ ${j.detail || 'Error'}`);
+      showResult('qr-plain-result', false, `✗ ${j.detail || 'Error'}`);
     }
   }
 
