@@ -119,12 +119,8 @@ _static_dir = Path(__file__).parent / "static"
 # ---------------------------------------------------------------------------
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
-    _DOCS_PATHS = {"/api/docs", "/api/redoc", "/openapi.json"}
-
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
-        path = request.url.path
-
         response.headers["X-Content-Type-Options"]   = "nosniff"
         response.headers["X-Frame-Options"]          = "DENY"
         response.headers["X-XSS-Protection"]         = "1; mode=block"
@@ -132,25 +128,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Permissions-Policy"]        = "camera=(), microphone=(), geolocation=()"
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
         response.headers["X-API-Version"]             = str(API_VERSION)
-
-        if path in self._DOCS_PATHS:
-            response.headers["Content-Security-Policy"] = (
-                "default-src 'self' cdn.jsdelivr.net; "
-                "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; "
-                "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com; "
-                "img-src 'self' data: blob: cdn.jsdelivr.net; "
-                "font-src 'self' cdn.jsdelivr.net fonts.gstatic.com"
-            )
-        else:
-            response.headers["Content-Security-Policy"] = (
-                "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline'; "
-                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-                "img-src 'self' data: blob:; "
-                "font-src 'self' https://fonts.gstatic.com; "
-                "connect-src 'self'; "
-                "frame-ancestors 'none'"
-            )
+        response.headers["Content-Security-Policy"]   = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "img-src 'self' data: blob:; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "connect-src 'self'; "
+            "frame-ancestors 'none'"
+        )
         return response
 
 
@@ -168,8 +154,9 @@ app = FastAPI(
         "Integrate against `/api/v1/*` to avoid forced updates."
     ),
     version=VERSION,
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
 
 app.add_middleware(SecurityHeadersMiddleware)
