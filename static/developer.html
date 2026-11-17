@@ -3,18 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Invisync Developer API — Steganography as a Service</title>
-<meta name="description" content="Integrate military-grade steganography into any app. REST API with API key auth, token pricing, and 5 channels. ₹50 per 1,000 tokens.">
+<title>Invisync Developer API</title>
+<meta name="description" content="Steganography as a Service — 5 channels, AES-256-GCM, token pricing. Monthly/yearly plans or one-time token packs. Pay via UPI, card, or net banking.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Geist+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
 :root {
   --canvas:        #14120f;
   --surface:       #1f1d1a;
   --surface-2:     #252320;
   --text:          #e7e4de;
-  --text-sec:      #ffffffb3;
+  --text-sec:      rgba(231,228,222,.7);
   --text-dim:      rgba(231,228,222,.45);
   --accent:        #cc410f;
   --accent-dim:    rgba(204,65,15,.12);
@@ -22,146 +23,154 @@
   --border-strong: rgba(118,118,118,.5);
   --green:         #22c55e;
   --green-dim:     rgba(34,197,94,.12);
-  --font-d:        'Bebas Neue', sans-serif;
-  --font-b:        'Geist Mono', ui-monospace, monospace;
-  --dur:           450ms;
-  --ease:          cubic-bezier(0.44, 0.00, 0.56, 1.00);
+  --font-d: 'Bebas Neue', sans-serif;
+  --font-b: 'Geist Mono', ui-monospace, monospace;
+  --dur:   450ms;
+  --ease:  cubic-bezier(0.44, 0.00, 0.56, 1.00);
 }
-*,*::before,*::after { box-sizing: border-box; margin:0; padding:0; }
-body { font-family:var(--font-b); font-size:14px; font-weight:500; background:var(--canvas); color:var(--text); line-height:1.5; -webkit-font-smoothing:antialiased; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);font-size:14px;font-weight:500;background:var(--canvas);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
 
 /* header */
-header { position:sticky; top:0; z-index:9; display:flex; align-items:center; justify-content:space-between; padding:0 30px; height:60px; border-bottom:1px solid var(--border); background:var(--canvas); backdrop-filter:blur(10px); }
-.logo { font-family:var(--font-d); font-size:24px; letter-spacing:.04em; color:var(--text); text-decoration:none; }
-.logo span { color:var(--accent); }
-nav { display:flex; align-items:center; gap:20px; }
-nav a { color:var(--text-dim); text-decoration:none; font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; transition:color var(--dur) var(--ease); }
-nav a:hover, nav a.active { color:var(--text); }
-.nav-cta { background:var(--accent); color:#fff !important; padding:6px 14px; }
-.nav-cta:hover { background:#b8390d !important; }
+header{position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between;padding:0 30px;height:60px;border-bottom:1px solid var(--border);background:var(--canvas)}
+.logo{font-family:var(--font-d);font-size:24px;letter-spacing:.04em;color:var(--text);text-decoration:none}
+.logo span{color:var(--accent)}
+nav{display:flex;align-items:center;gap:20px}
+nav a{color:var(--text-dim);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:color var(--dur) var(--ease)}
+nav a:hover,nav a.active{color:var(--text)}
+.nav-cta{background:var(--accent);color:#fff!important;padding:6px 14px}
+.nav-cta:hover{background:#b8390d!important}
 
 /* layout */
-.container { max-width:1140px; margin:0 auto; padding:0 30px; }
-section { padding:60px 0; border-bottom:1px solid var(--border); }
+.container{max-width:1140px;margin:0 auto;padding:0 30px}
+section{padding:60px 0;border-bottom:1px solid var(--border)}
 
 /* hero */
-.hero { padding:80px 0 60px; }
-.hero-eyebrow { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
-.hero h1 { font-family:var(--font-d); font-size:clamp(44px,6vw,68px); line-height:.9; letter-spacing:-.03em; color:var(--text); margin-bottom:15px; }
-.hero p { font-size:15px; color:var(--text-dim); max-width:520px; margin-bottom:25px; line-height:1.6; }
-.hero-actions { display:flex; gap:10px; flex-wrap:wrap; }
-.btn { display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 20px; font-family:var(--font-b); font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; text-decoration:none; border:1px solid transparent; cursor:pointer; transition:all var(--dur) var(--ease); }
-.btn-primary { background:var(--accent); color:#fff; border-color:var(--accent); }
-.btn-primary:hover { background:#b8390d; border-color:#b8390d; transform:translateY(-1px); }
-.btn-ghost { background:transparent; color:var(--text); border-color:var(--border-strong); }
-.btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+.hero{padding:80px 0 50px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.hero h1{font-family:var(--font-d);font-size:clamp(44px,6vw,68px);line-height:.9;letter-spacing:-.03em;margin-bottom:14px}
+.hero p{font-size:15px;color:var(--text-dim);max-width:520px;margin-bottom:22px;line-height:1.6}
+.demo-box{background:var(--surface);border:1px solid var(--border);padding:12px 16px;display:inline-flex;align-items:center;gap:12px;margin-top:14px;max-width:460px}
+.demo-box .lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);flex-shrink:0}
+.demo-box code{font-family:var(--font-b);font-size:13px;color:var(--accent);flex:1;word-break:break-all}
+.demo-box .badge{font-size:10px;font-weight:700;padding:3px 6px;border:1px solid rgba(34,197,94,.4);color:var(--green);flex-shrink:0}
 
-/* key badge */
-.key-box { background:var(--surface); border:1px solid var(--border); padding:12px 16px; display:flex; align-items:center; gap:12px; max-width:500px; margin-top:20px; }
-.key-box .label { font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); flex-shrink:0; }
-.key-box code { font-family:var(--font-b); font-size:13px; color:var(--accent); flex:1; word-break:break-all; }
-.key-box .plan { font-size:10px; font-weight:700; padding:3px 6px; border:1px solid rgba(34,197,94,.4); color:var(--green); border-radius:5px; flex-shrink:0; }
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin-bottom:60px}
+@media(max-width:700px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--canvas);padding:20px}
+.stat-val{font-family:var(--font-d);font-size:36px;color:var(--text);line-height:1;margin-bottom:4px}
+.stat-val span{color:var(--accent)}
+.stat-lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
 
-/* stat row */
-.stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); margin-bottom:60px; }
-@media(max-width:700px) { .stat-row { grid-template-columns:repeat(2,1fr); } }
-.stat { background:var(--canvas); padding:20px; }
-.stat-val { font-family:var(--font-d); font-size:36px; color:var(--text); line-height:1; margin-bottom:4px; }
-.stat-val span { color:var(--accent); }
-.stat-label { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); }
+/* pricing tabs */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:30px}
+.tab-btn{padding:10px 20px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;font-family:var(--font-b);transition:all var(--dur) var(--ease)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-pane{display:none}
+.tab-pane.active{display:grid}
+.plans-grid{grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+@media(max-width:800px){.plans-grid{grid-template-columns:1fr}}
 
-/* pricing */
-.pricing-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); }
-@media(max-width:900px)  { .pricing-grid { grid-template-columns:repeat(2,1fr); } }
-@media(max-width:500px)  { .pricing-grid { grid-template-columns:1fr; } }
-.plan-card { background:var(--surface); padding:24px; position:relative; }
-.plan-card.featured { background:var(--surface-2); box-shadow:0 0 0 1px var(--accent); }
-.plan-popular { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
-.plan-name { font-family:var(--font-d); font-size:28px; letter-spacing:.02em; color:var(--text); margin-bottom:5px; }
-.plan-price { font-size:32px; font-weight:700; color:var(--text); line-height:1; margin-bottom:4px; }
-.plan-price sub { font-size:14px; color:var(--text-dim); }
-.plan-tokens { font-size:12px; color:var(--accent); font-weight:700; letter-spacing:.06em; margin-bottom:16px; }
-.plan-features { list-style:none; margin-bottom:20px; }
-.plan-features li { font-size:12px; color:var(--text-dim); padding:4px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:6px; }
-.plan-features li::before { content:'✓'; color:var(--green); font-weight:700; flex-shrink:0; }
-.plan-cta { display:block; text-align:center; padding:10px; font-family:var(--font-b); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; text-decoration:none; border:1px solid var(--border-strong); color:var(--text); transition:all var(--dur) var(--ease); }
-.plan-cta:hover, .plan-card.featured .plan-cta { border-color:var(--accent); color:var(--accent); }
+.plan{background:var(--surface);padding:26px;position:relative;cursor:pointer;transition:background var(--dur) var(--ease)}
+.plan:hover{background:var(--surface-2)}
+.plan.featured{background:var(--surface-2);box-shadow:0 0 0 1px var(--accent)}
+.plan-popular{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.plan-name{font-family:var(--font-d);font-size:26px;letter-spacing:.02em;margin-bottom:4px}
+.plan-price{font-size:30px;font-weight:700;line-height:1;margin-bottom:4px}
+.plan-price sup{font-size:16px;vertical-align:top;margin-top:4px}
+.plan-price sub{font-size:14px;color:var(--text-dim)}
+.plan-tokens{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.06em;margin-bottom:14px}
+.plan-features{list-style:none;margin-bottom:20px}
+.plan-features li{font-size:12px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.plan-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.plan-cta{display:block;text-align:center;padding:11px;font-family:var(--font-b);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--border-strong);color:var(--text);cursor:pointer;background:none;width:100%;transition:all var(--dur) var(--ease)}
+.plan-cta:hover,.plan.featured .plan-cta{border-color:var(--accent);color:var(--accent)}
 
-/* quickstart */
-.qs-steps { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); margin-bottom:30px; }
-@media(max-width:700px) { .qs-steps { grid-template-columns:1fr; } }
-.qs-step { background:var(--surface); padding:20px; }
-.qs-num { font-family:var(--font-d); font-size:40px; color:var(--accent); line-height:1; margin-bottom:8px; }
-.qs-step h4 { font-family:var(--font-d); font-size:16px; letter-spacing:.04em; color:var(--text); margin-bottom:5px; }
-.qs-step p { font-size:12px; color:var(--text-dim); line-height:1.5; }
+.yearly-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:var(--green);margin-left:8px;vertical-align:middle}
 
-/* code blocks */
-.code-tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:0; }
-.code-tab { padding:8px 16px; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--font-b); transition:color var(--dur) var(--ease), border-color var(--dur) var(--ease); }
-.code-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
-.code-pane { display:none; }
-.code-pane.active { display:block; }
-pre { background:var(--surface); border:1px solid var(--border); padding:20px; font-size:12px; line-height:1.7; overflow-x:auto; color:var(--text); font-family:var(--font-b); }
-pre .kw  { color:#cc8b00; }
-pre .str { color:#a8e6a3; }
-pre .cmt { color:var(--text-dim); }
-pre .key { color:#7eb8f7; }
-pre .val { color:var(--accent); }
-pre .fn  { color:var(--green); }
+/* quick start */
+.qs-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin-bottom:28px}
+@media(max-width:700px){.qs-steps{grid-template-columns:1fr}}
+.qs-step{background:var(--surface);padding:20px}
+.qs-num{font-family:var(--font-d);font-size:40px;color:var(--accent);line-height:1;margin-bottom:6px}
+.qs-step h4{font-family:var(--font-d);font-size:16px;letter-spacing:.04em;margin-bottom:4px}
+.qs-step p{font-size:12px;color:var(--text-dim);line-height:1.5}
 
-/* endpoint table */
-.section-h { font-family:var(--font-d); font-size:36px; letter-spacing:.02em; color:var(--text); margin-bottom:5px; }
-.section-sub { font-size:13px; color:var(--text-dim); margin-bottom:30px; line-height:1.5; }
-.ep-group { margin-bottom:30px; }
-.ep-group-label { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border); }
-.ep { display:grid; grid-template-columns:70px 1fr auto; gap:0; border:1px solid var(--border); margin-bottom:4px; }
-.ep-method { font-size:11px; font-weight:700; letter-spacing:.08em; padding:12px; display:flex; align-items:center; justify-content:center; border-right:1px solid var(--border); }
-.post { background:rgba(204,65,15,.1); color:var(--accent); }
-.get  { background:var(--green-dim); color:var(--green); }
-.ep-path { font-size:12px; font-weight:600; padding:12px 16px; color:var(--text); align-self:center; }
-.ep-path small { display:block; font-size:11px; color:var(--text-dim); margin-top:2px; font-weight:500; }
-.ep-cost { font-size:12px; font-weight:700; color:var(--accent); padding:12px; align-self:center; white-space:nowrap; }
+.code-tabs{display:flex;border-bottom:1px solid var(--border)}
+.code-tab{padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font-b);transition:all var(--dur) var(--ease)}
+.code-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.code-pane{display:none}
+.code-pane.active{display:block}
+pre{background:var(--surface);border:1px solid var(--border);padding:20px;font-size:12px;line-height:1.7;overflow-x:auto;color:var(--text);font-family:var(--font-b)}
+pre .kw{color:#cc8b00}
+pre .str{color:#a8e6a3}
+pre .cmt{color:var(--text-dim)}
+pre .fn{color:var(--green)}
+pre .val{color:var(--accent)}
 
-/* errors */
-.err-table { width:100%; border-collapse:collapse; }
-.err-table th { font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); }
-.err-table td { font-size:12px; color:var(--text); padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
-.err-table td:first-child { font-weight:700; color:var(--accent); white-space:nowrap; }
+/* endpoints */
+.section-h{font-family:var(--font-d);font-size:36px;letter-spacing:.02em;margin-bottom:5px}
+.section-sub{font-size:13px;color:var(--text-dim);margin-bottom:28px;line-height:1.6}
+.ep-group{margin-bottom:28px}
+.ep-group-label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.ep{display:grid;grid-template-columns:70px 1fr auto;border:1px solid var(--border);margin-bottom:4px}
+.ep-method{font-size:11px;font-weight:700;letter-spacing:.08em;padding:12px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border)}
+.post{background:rgba(204,65,15,.1);color:var(--accent)}
+.get{background:var(--green-dim);color:var(--green)}
+.ep-path{font-size:12px;font-weight:600;padding:12px 16px;align-self:center}
+.ep-path small{display:block;font-size:11px;color:var(--text-dim);margin-top:2px;font-weight:500}
+.ep-cost{font-size:12px;font-weight:700;color:var(--accent);padding:12px;align-self:center;white-space:nowrap}
 
-/* key request */
-.key-form { max-width:600px; }
-.key-form label { display:block; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:5px; }
-.key-form input, .key-form select, .key-form textarea {
-  width:100%; height:40px; background:rgba(20,18,15,.8); border:1px solid var(--border); color:var(--text);
-  padding:0 12px; font-size:13px; font-family:var(--font-b); font-weight:500; outline:none;
-  margin-bottom:16px; transition:border-color var(--dur) var(--ease);
-}
-.key-form input:focus, .key-form select:focus, .key-form textarea:focus { border-color:var(--accent); }
-.key-form input::placeholder, .key-form textarea::placeholder { color:var(--text-dim); }
-.key-form textarea { height:80px; padding:10px 12px; resize:vertical; }
-.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-@media(max-width:600px) { .form-row { grid-template-columns:1fr; } }
-.form-note { font-size:11px; color:var(--text-dim); margin-top:-8px; margin-bottom:16px; }
-.form-success { background:var(--green-dim); border:1px solid rgba(34,197,94,.4); padding:14px 16px; color:var(--green); font-size:13px; display:none; }
+/* tables */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
+.tbl td{font-size:12px;color:var(--text);padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl td:first-child{font-weight:700;color:var(--accent);white-space:nowrap}
+
+/* key status */
+.key-check-form{display:flex;gap:8px;max-width:500px;margin-bottom:20px}
+.key-check-form input{flex:1;height:40px;background:rgba(20,18,15,.8);border:1px solid var(--border);color:var(--text);padding:0 12px;font-size:13px;font-family:var(--font-b);font-weight:500;outline:none;transition:border-color var(--dur) var(--ease)}
+.key-check-form input:focus{border-color:var(--accent)}
+.key-check-form button{height:40px;padding:0 16px;background:var(--accent);color:#fff;border:none;font-family:var(--font-b);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.key-status-result{background:var(--surface);border:1px solid var(--border);padding:16px;font-size:13px;display:none;line-height:1.8}
+.key-status-result.ok{border-color:rgba(34,197,94,.4)}
+.key-status-result.err{border-color:var(--accent)}
+
+/* payment modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;visibility:hidden;opacity:0;transition:all var(--dur) var(--ease)}
+.modal-backdrop.open{visibility:visible;opacity:1}
+.modal{background:var(--surface);border:1px solid var(--border);max-width:460px;width:100%;padding:30px;position:relative}
+.modal h3{font-family:var(--font-d);font-size:28px;letter-spacing:.02em;margin-bottom:6px}
+.plan-desc{font-size:12px;color:var(--text-dim);margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.modal label{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:5px}
+.modal input{width:100%;height:40px;background:rgba(20,18,15,.8);border:1px solid var(--border);color:var(--text);padding:0 12px;font-size:13px;font-family:var(--font-b);font-weight:500;outline:none;margin-bottom:14px;transition:border-color var(--dur) var(--ease)}
+.modal input:focus{border-color:var(--accent)}
+.modal input::placeholder{color:var(--text-dim)}
+.modal-actions{display:flex;gap:8px;margin-top:4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 20px;font-family:var(--font-b);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:all var(--dur) var(--ease)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);flex:1}
+.btn-primary:hover{background:#b8390d}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--text-dim);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--border-strong);color:var(--text)}
+.modal-close{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;line-height:1;padding:4px 8px}
+
+/* success modal */
+.success-key-box{background:rgba(20,18,15,.8);border:1px solid var(--accent);padding:12px 50px 12px 14px;margin-bottom:14px;position:relative}
+.success-key-box code{font-family:var(--font-b);font-size:13px;color:var(--accent);word-break:break-all}
+.copy-btn{position:absolute;top:50%;right:10px;transform:translateY(-50%);background:none;border:1px solid var(--border-strong);color:var(--text-dim);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;cursor:pointer;font-family:var(--font-b);transition:all var(--dur) var(--ease)}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.success-note{font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:12px}
+.success-note strong{color:var(--text)}
 
 /* footer */
-footer { padding:24px 30px; color:var(--text-dim); font-size:12px; letter-spacing:.04em; }
-footer a { color:var(--text-sec); text-decoration:none; }
-footer a:hover { color:var(--accent); }
-.footer-inner { max-width:1140px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
-.footer-sig { font-family:var(--font-d); font-size:18px; color:var(--text); }
-.footer-sig span { color:var(--accent); }
-
-/* toc sidebar on wide */
-@media(min-width:1200px) {
-  .dev-layout { display:grid; grid-template-columns:200px 1fr; gap:60px; }
-  .toc { position:sticky; top:80px; height:fit-content; }
-  .toc a { display:block; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); text-decoration:none; padding:5px 0; border-left:2px solid transparent; padding-left:12px; transition:all var(--dur) var(--ease); }
-  .toc a:hover { color:var(--text); border-left-color:var(--border-strong); }
-  .toc a.active { color:var(--accent); border-left-color:var(--accent); }
-  .toc-group { font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text-dim); margin:16px 0 4px; }
-}
-@media(max-width:1199px) { .toc { display:none; } }
+footer{padding:24px 30px;color:var(--text-dim);font-size:12px;letter-spacing:.04em}
+footer a{color:var(--text-sec);text-decoration:none}
+footer a:hover{color:var(--accent)}
+.footer-inner{max-width:1140px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-sig{font-family:var(--font-d);font-size:18px;color:var(--text)}
+.footer-sig span{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -172,110 +181,183 @@ footer a:hover { color:var(--accent); }
     <a href="/">Toolkit</a>
     <a href="/developer" class="active">Developer</a>
     <a href="/api/docs" target="_blank">API Ref</a>
-    <a href="#get-key" class="nav-cta btn">Get API Key</a>
+    <a href="#pricing" class="nav-cta btn">Get API Key</a>
   </nav>
 </header>
 
-<!-- ── Hero ───────────────────────────────────────────────── -->
+<!-- Hero -->
 <div class="container hero">
-  <p class="hero-eyebrow">Steganography as a Service</p>
+  <p class="eyebrow">Steganography as a Service</p>
   <h1>BUILD WITH<br>INVISYNC API</h1>
-  <p>Embed encrypted secrets in images, audio, QR codes, text, and PDFs — all over a simple REST API. One key, five channels, any language.</p>
-  <div class="hero-actions">
-    <a href="#get-key" class="btn btn-primary">Request Free API Key</a>
-    <a href="#quickstart" class="btn btn-ghost">Quick Start ↓</a>
-  </div>
-  <div class="key-box">
-    <span class="label">Demo Key</span>
+  <p>Embed encrypted secrets in images, audio, QR codes, text, and PDFs. One key, five channels. Pay via UPI, card, or net banking — key delivered instantly.</p>
+  <div class="demo-box">
+    <span class="lbl">Free Demo</span>
     <code>inv_demo_free_2026</code>
-    <span class="plan">Free · 100 tokens/day</span>
+    <span class="badge">100 tokens/day</span>
   </div>
 </div>
 
-<!-- ── Stats ──────────────────────────────────────────────── -->
+<!-- Stats -->
 <div class="container" style="padding-top:0;padding-bottom:0">
   <div class="stat-row">
-    <div class="stat"><div class="stat-val">5</div><div class="stat-label">Stego Channels</div></div>
-    <div class="stat"><div class="stat-val"><span>₹50</span></div><div class="stat-label">per 1,000 tokens</div></div>
-    <div class="stat"><div class="stat-val">256<span>-bit</span></div><div class="stat-label">AES-GCM Encryption</div></div>
-    <div class="stat"><div class="stat-val">50<span>MB</span></div><div class="stat-label">Max file size</div></div>
+    <div class="stat"><div class="stat-val">5</div><div class="stat-lbl">Stego Channels</div></div>
+    <div class="stat"><div class="stat-val"><span>₹49</span></div><div class="stat-lbl">per month (starter)</div></div>
+    <div class="stat"><div class="stat-val">256<span>-bit</span></div><div class="stat-lbl">AES-GCM encryption</div></div>
+    <div class="stat"><div class="stat-val">50<span>MB</span></div><div class="stat-lbl">Max file size</div></div>
   </div>
 </div>
 
-<!-- ── Pricing ────────────────────────────────────────────── -->
+<!-- Pricing -->
 <section id="pricing">
   <div class="container">
-    <h2 class="section-h">Simple Token Pricing</h2>
-    <p class="section-sub">Buy tokens once, use whenever. No subscription, no expiry, no surprise charges.<br>
-    1 token ≈ 1 encoding or decoding operation (varies by channel — see endpoint reference).</p>
-    <div class="pricing-grid">
+    <h2 class="section-h">Plans & Pricing</h2>
+    <p class="section-sub">Pay via UPI, debit/credit card, net banking, or wallets. API key delivered instantly after payment is verified.</p>
 
-      <div class="plan-card">
-        <div class="plan-name">Free</div>
-        <div class="plan-price">₹0</div>
-        <div class="plan-tokens">100 tokens / day</div>
-        <ul class="plan-features">
-          <li>Demo key — instant access</li>
-          <li>All 5 channels</li>
-          <li>AES-256-GCM encryption</li>
-          <li>50 MB file limit</li>
-          <li>Community support</li>
-        </ul>
-        <a href="#get-key" class="plan-cta">Start Free</a>
-      </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchPlan('monthly',this)">Monthly</button>
+      <button class="tab-btn" onclick="switchPlan('yearly',this)">Yearly <span class="yearly-badge">Save 32%</span></button>
+      <button class="tab-btn" onclick="switchPlan('onetime',this)">Token Packs</button>
+    </div>
 
-      <div class="plan-card featured">
-        <div class="plan-popular">Most Popular</div>
+    <!-- monthly -->
+    <div class="tab-pane active plans-grid" id="plan-monthly">
+      <div class="plan" onclick="openBuy('starter_monthly')">
         <div class="plan-name">Starter</div>
-        <div class="plan-price">₹50 <sub>one-time</sub></div>
-        <div class="plan-tokens">1,000 tokens</div>
+        <div class="plan-price"><sup>₹</sup>49<sub>/month</sub></div>
+        <div class="plan-tokens">1,000 tokens / month</div>
         <ul class="plan-features">
-          <li>Live API key</li>
-          <li>All 5 channels</li>
+          <li>Auto-resets every 30 days</li>
+          <li>All 5 stego channels</li>
           <li>AES-256-GCM encryption</li>
           <li>50 MB file limit</li>
-          <li>Usage headers per request</li>
-          <li>Email support</li>
+          <li>Usage response headers</li>
         </ul>
-        <a href="#get-key" class="plan-cta">Buy Starter</a>
+        <button class="plan-cta">Buy Starter →</button>
       </div>
-
-      <div class="plan-card">
+      <div class="plan featured" onclick="openBuy('growth_monthly')">
+        <div class="plan-popular">Most Popular</div>
         <div class="plan-name">Growth</div>
-        <div class="plan-price">₹200 <sub>one-time</sub></div>
-        <div class="plan-tokens">5,000 tokens</div>
+        <div class="plan-price"><sup>₹</sup>149<sub>/month</sub></div>
+        <div class="plan-tokens">5,000 tokens / month</div>
         <ul class="plan-features">
-          <li>Live API key</li>
-          <li>All 5 channels</li>
+          <li>Auto-resets every 30 days</li>
+          <li>All 5 stego channels</li>
           <li>AES-256-GCM encryption</li>
           <li>50 MB file limit</li>
-          <li>Usage headers per request</li>
+          <li>Usage response headers</li>
           <li>Priority email support</li>
         </ul>
-        <a href="#get-key" class="plan-cta">Buy Growth</a>
+        <button class="plan-cta">Buy Growth →</button>
       </div>
-
-      <div class="plan-card">
+      <div class="plan" onclick="openBuy('pro_monthly')">
         <div class="plan-name">Pro</div>
-        <div class="plan-price">₹500 <sub>one-time</sub></div>
-        <div class="plan-tokens">15,000 tokens</div>
+        <div class="plan-price"><sup>₹</sup>499<sub>/month</sub></div>
+        <div class="plan-tokens">20,000 tokens / month</div>
         <ul class="plan-features">
-          <li>Live API key</li>
-          <li>All 5 channels</li>
+          <li>Auto-resets every 30 days</li>
+          <li>All 5 stego channels</li>
           <li>AES-256-GCM encryption</li>
           <li>50 MB file limit</li>
-          <li>Usage headers per request</li>
-          <li>Webhook on low balance</li>
+          <li>Usage response headers</li>
           <li>Priority support + SLA</li>
         </ul>
-        <a href="#get-key" class="plan-cta">Buy Pro</a>
+        <button class="plan-cta">Buy Pro →</button>
       </div>
+    </div>
 
+    <!-- yearly -->
+    <div class="tab-pane plans-grid" id="plan-yearly">
+      <div class="plan" onclick="openBuy('starter_yearly')">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><sup>₹</sup>399<sub>/year</sub></div>
+        <div class="plan-tokens">1,000 tokens / month · save ₹189</div>
+        <ul class="plan-features">
+          <li>Tokens reset every 30 days</li>
+          <li>12 months coverage</li>
+          <li>All 5 stego channels</li>
+          <li>AES-256-GCM encryption</li>
+          <li>50 MB file limit</li>
+        </ul>
+        <button class="plan-cta">Buy Starter Yearly →</button>
+      </div>
+      <div class="plan featured" onclick="openBuy('growth_yearly')">
+        <div class="plan-popular">Best Value</div>
+        <div class="plan-name">Growth</div>
+        <div class="plan-price"><sup>₹</sup>1,199<sub>/year</sub></div>
+        <div class="plan-tokens">5,000 tokens / month · save ₹589</div>
+        <ul class="plan-features">
+          <li>Tokens reset every 30 days</li>
+          <li>12 months coverage</li>
+          <li>All 5 stego channels</li>
+          <li>AES-256-GCM encryption</li>
+          <li>50 MB file limit</li>
+          <li>Priority email support</li>
+        </ul>
+        <button class="plan-cta">Buy Growth Yearly →</button>
+      </div>
+      <div class="plan" onclick="openBuy('pro_yearly')">
+        <div class="plan-name">Pro</div>
+        <div class="plan-price"><sup>₹</sup>3,999<sub>/year</sub></div>
+        <div class="plan-tokens">20,000 tokens / month · save ₹1,989</div>
+        <ul class="plan-features">
+          <li>Tokens reset every 30 days</li>
+          <li>12 months coverage</li>
+          <li>All 5 stego channels</li>
+          <li>AES-256-GCM encryption</li>
+          <li>50 MB file limit</li>
+          <li>Priority support + SLA</li>
+        </ul>
+        <button class="plan-cta">Buy Pro Yearly →</button>
+      </div>
+    </div>
+
+    <!-- one-time token packs -->
+    <div class="tab-pane plans-grid" id="plan-onetime">
+      <div class="plan" onclick="openBuy('pack_1k')">
+        <div class="plan-name">1K Pack</div>
+        <div class="plan-price"><sup>₹</sup>50</div>
+        <div class="plan-tokens">1,000 tokens — never expires</div>
+        <ul class="plan-features">
+          <li>No monthly reset</li>
+          <li>Use at your own pace</li>
+          <li>All 5 stego channels</li>
+          <li>AES-256-GCM encryption</li>
+        </ul>
+        <button class="plan-cta">Buy 1K Pack →</button>
+      </div>
+      <div class="plan featured" onclick="openBuy('pack_5k')">
+        <div class="plan-popular">Best Value</div>
+        <div class="plan-name">5K Pack</div>
+        <div class="plan-price"><sup>₹</sup>200</div>
+        <div class="plan-tokens">5,000 tokens — never expires</div>
+        <ul class="plan-features">
+          <li>No monthly reset</li>
+          <li>Use at your own pace</li>
+          <li>All 5 stego channels</li>
+          <li>AES-256-GCM encryption</li>
+          <li>Usage response headers</li>
+        </ul>
+        <button class="plan-cta">Buy 5K Pack →</button>
+      </div>
+      <div class="plan" onclick="openBuy('pack_15k')">
+        <div class="plan-name">15K Pack</div>
+        <div class="plan-price"><sup>₹</sup>500</div>
+        <div class="plan-tokens">15,000 tokens — never expires</div>
+        <ul class="plan-features">
+          <li>No monthly reset</li>
+          <li>Use at your own pace</li>
+          <li>All 5 stego channels</li>
+          <li>AES-256-GCM encryption</li>
+          <li>Usage response headers</li>
+          <li>Priority support</li>
+        </ul>
+        <button class="plan-cta">Buy 15K Pack →</button>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ── Quick Start ────────────────────────────────────────── -->
+<!-- Quick Start -->
 <section id="quickstart">
   <div class="container">
     <h2 class="section-h">Quick Start</h2>
@@ -284,30 +366,29 @@ footer a:hover { color:var(--accent); }
       <div class="qs-step">
         <div class="qs-num">01</div>
         <h4>Get a Key</h4>
-        <p>Use the free demo key below or <a href="#get-key" style="color:var(--accent)">request a live key</a> for production use.</p>
+        <p>Use <code style="color:var(--accent)">inv_demo_free_2026</code> (100 tokens/day free) or buy a plan above — key arrives instantly after payment.</p>
       </div>
       <div class="qs-step">
         <div class="qs-num">02</div>
         <h4>Send a Request</h4>
-        <p>POST to any <code style="color:var(--accent)">/api/*</code> endpoint with your <code style="color:var(--accent)">X-API-Key</code> header and a multipart form body.</p>
+        <p>POST to any <code style="color:var(--accent)">/api/*</code> endpoint with <code style="color:var(--accent)">X-API-Key</code> header and <code style="color:var(--accent)">multipart/form-data</code> body.</p>
       </div>
       <div class="qs-step">
         <div class="qs-num">03</div>
-        <h4>Download Result</h4>
-        <p>Receive the stego file (image/audio/PDF) or JSON with the extracted message. Check <code style="color:var(--accent)">X-Tokens-Used</code> header.</p>
+        <h4>Get the Result</h4>
+        <p>Receive stego file (image/audio/PDF) or JSON. Check <code style="color:var(--accent)">X-Tokens-Remaining</code> in response headers.</p>
       </div>
     </div>
 
-    <!-- code examples -->
     <div class="code-tabs">
-      <button class="code-tab active" onclick="switchTab(this,'tab-curl')">cURL</button>
-      <button class="code-tab" onclick="switchTab(this,'tab-python')">Python</button>
-      <button class="code-tab" onclick="switchTab(this,'tab-js')">JavaScript</button>
-      <button class="code-tab" onclick="switchTab(this,'tab-decode')">Decode</button>
+      <button class="code-tab active" onclick="switchCode(this,'c-curl')">cURL</button>
+      <button class="code-tab" onclick="switchCode(this,'c-python')">Python</button>
+      <button class="code-tab" onclick="switchCode(this,'c-js')">JavaScript</button>
+      <button class="code-tab" onclick="switchCode(this,'c-status')">Check Balance</button>
     </div>
 
-    <div class="code-pane active" id="tab-curl">
-<pre><span class="cmt"># Encode a secret into a PNG image (AES-256-GCM encrypted)</span>
+    <div class="code-pane active" id="c-curl">
+<pre><span class="cmt"># Encode a secret message into a PNG image (AES-256-GCM encrypted)</span>
 <span class="fn">curl</span> -X POST <span class="str">https://invisync.vercel.app/api/image/encode</span> \
   -H <span class="str">"X-API-Key: inv_demo_free_2026"</span> \
   -F <span class="str">"cover=@photo.png"</span> \
@@ -315,194 +396,167 @@ footer a:hover { color:var(--accent); }
   -F <span class="str">"password=s3cur3P@ss"</span> \
   --output stego.png
 
-<span class="cmt"># Response headers</span>
-<span class="cmt"># X-Tokens-Used: 10</span>
-<span class="cmt"># X-Plan: free</span>
-<span class="cmt"># X-Tokens-Remaining: 90</span></pre>
+<span class="cmt"># X-Tokens-Used: 10  |  X-Tokens-Remaining: 90  |  X-Plan: free</span>
+
+<span class="cmt"># Decode it back</span>
+<span class="fn">curl</span> -X POST <span class="str">https://invisync.vercel.app/api/image/decode</span> \
+  -H <span class="str">"X-API-Key: inv_demo_free_2026"</span> \
+  -F <span class="str">"stego=@stego.png"</span> \
+  -F <span class="str">"password=s3cur3P@ss"</span>
+<span class="cmt"># → {"message": "Operation Nightfall begins at dawn", "size_bytes": 42}</span></pre>
     </div>
 
-    <div class="code-pane" id="tab-python">
+    <div class="code-pane" id="c-python">
 <pre><span class="kw">import</span> requests
 
-API_KEY = <span class="str">"inv_demo_free_2026"</span>
+API_KEY = <span class="str">"inv_live_your_key_here"</span>
 BASE    = <span class="str">"https://invisync.vercel.app"</span>
 
-<span class="cmt"># Encode a secret message into an image</span>
+<span class="cmt"># Encode — image</span>
 <span class="kw">with</span> <span class="fn">open</span>(<span class="str">"photo.png"</span>, <span class="str">"rb"</span>) <span class="kw">as</span> f:
     r = requests.<span class="fn">post</span>(
         <span class="str">f"{BASE}/api/image/encode"</span>,
         headers={<span class="str">"X-API-Key"</span>: API_KEY},
         files={<span class="str">"cover"</span>: (<span class="str">"photo.png"</span>, f, <span class="str">"image/png"</span>)},
-        data={
-            <span class="str">"message"</span>: <span class="str">"Operation Nightfall begins at dawn"</span>,
-            <span class="str">"password"</span>: <span class="str">"s3cur3P@ss"</span>,
-        },
+        data={<span class="str">"message"</span>: <span class="str">"secret text"</span>, <span class="str">"password"</span>: <span class="str">"pass"</span>},
     )
-
-<span class="fn">print</span>(<span class="str">"Tokens used:"</span>, r.headers[<span class="str">"X-Tokens-Used"</span>])
+<span class="fn">print</span>(<span class="str">"Remaining:"</span>, r.headers[<span class="str">"X-Tokens-Remaining"</span>])
 <span class="kw">with</span> <span class="fn">open</span>(<span class="str">"stego.png"</span>, <span class="str">"wb"</span>) <span class="kw">as</span> out:
     out.<span class="fn">write</span>(r.content)
 
-<span class="cmt"># Decode it back</span>
-<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"stego.png"</span>, <span class="str">"rb"</span>) <span class="kw">as</span> f:
+<span class="cmt"># Decode — QR code</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"stego_qr.png"</span>, <span class="str">"rb"</span>) <span class="kw">as</span> f:
     r2 = requests.<span class="fn">post</span>(
-        <span class="str">f"{BASE}/api/image/decode"</span>,
+        <span class="str">f"{BASE}/api/qr/decode"</span>,
         headers={<span class="str">"X-API-Key"</span>: API_KEY},
-        files={<span class="str">"stego"</span>: (<span class="str">"stego.png"</span>, f, <span class="str">"image/png"</span>)},
-        data={<span class="str">"password"</span>: <span class="str">"s3cur3P@ss"</span>},
+        files={<span class="str">"stego"</span>: f},
+        data={<span class="str">"password"</span>: <span class="str">"pass"</span>},
     )
-<span class="fn">print</span>(r2.<span class="fn">json</span>()[<span class="str">"message"</span>])
-<span class="cmt"># → Operation Nightfall begins at dawn</span></pre>
+<span class="fn">print</span>(r2.<span class="fn">json</span>()[<span class="str">"message"</span>])</pre>
     </div>
 
-    <div class="code-pane" id="tab-js">
-<pre><span class="kw">const</span> API_KEY = <span class="str">"inv_demo_free_2026"</span>;
+    <div class="code-pane" id="c-js">
+<pre><span class="kw">const</span> API_KEY = <span class="str">"inv_live_your_key_here"</span>;
 <span class="kw">const</span> BASE    = <span class="str">"https://invisync.vercel.app"</span>;
 
-<span class="cmt">// Encode: generate QR + hide a secret inside it</span>
-<span class="kw">async function</span> <span class="fn">encodeQR</span>(url, secret, password) {
+<span class="cmt">// Encode: generate QR + hide secret inside pixel LSBs</span>
+<span class="kw">async function</span> <span class="fn">hideInQR</span>(url, secret, password) {
   <span class="kw">const</span> fd = <span class="kw">new</span> <span class="fn">FormData</span>();
-  fd.<span class="fn">append</span>(<span class="str">"url"</span>,     url);
-  fd.<span class="fn">append</span>(<span class="str">"message"</span>, secret);
+  fd.<span class="fn">append</span>(<span class="str">"url"</span>,      url);
+  fd.<span class="fn">append</span>(<span class="str">"message"</span>,  secret);
   fd.<span class="fn">append</span>(<span class="str">"password"</span>, password);
-
   <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`${BASE}/api/qr/encode`</span>, {
-    method:  <span class="str">"POST"</span>,
-    headers: { <span class="str">"X-API-Key"</span>: API_KEY },
-    body: fd,
+    method: <span class="str">"POST"</span>, headers: {<span class="str">"X-API-Key"</span>: API_KEY}, body: fd
   });
-
-  console.<span class="fn">log</span>(<span class="str">"Tokens used:"</span>, res.headers.<span class="fn">get</span>(<span class="str">"X-Tokens-Used"</span>));
-  <span class="kw">return</span> res.<span class="fn">blob</span>();   <span class="cmt">// PNG blob — still scans to original URL</span>
+  console.<span class="fn">log</span>(<span class="str">"Remaining:"</span>, res.headers.<span class="fn">get</span>(<span class="str">"X-Tokens-Remaining"</span>));
+  <span class="kw">return</span> res.<span class="fn">blob</span>(); <span class="cmt">// PNG — still scans to original URL</span>
 }
 
-<span class="cmt">// Encode text with zero-width Unicode</span>
+<span class="cmt">// Hide message in text (zero-width Unicode)</span>
 <span class="kw">async function</span> <span class="fn">hideInText</span>(coverText, secret) {
   <span class="kw">const</span> fd = <span class="kw">new</span> <span class="fn">FormData</span>();
   fd.<span class="fn">append</span>(<span class="str">"cover"</span>,   coverText);
   fd.<span class="fn">append</span>(<span class="str">"message"</span>, secret);
-
   <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`${BASE}/api/text/encode`</span>, {
-    method:  <span class="str">"POST"</span>,
-    headers: { <span class="str">"X-API-Key"</span>: API_KEY },
-    body: fd,
+    method: <span class="str">"POST"</span>, headers: {<span class="str">"X-API-Key"</span>: API_KEY}, body: fd
   });
-  <span class="kw">const</span> j = <span class="kw">await</span> res.<span class="fn">json</span>();
-  <span class="kw">return</span> j.stego_text;   <span class="cmt">// looks identical, invisible chars inside</span>
+  <span class="kw">return</span> (await res.<span class="fn">json</span>()).stego_text; <span class="cmt">// looks identical, invisible chars inside</span>
 }</pre>
     </div>
 
-    <div class="code-pane" id="tab-decode">
-<pre><span class="cmt"># Decode any supported format — Python example</span>
-<span class="kw">import</span> requests
+    <div class="code-pane" id="c-status">
+<pre><span class="cmt"># Check key balance anytime</span>
+<span class="fn">curl</span> <span class="str">https://invisync.vercel.app/api/key-status</span> \
+  -H <span class="str">"X-API-Key: inv_live_your_key_here"</span>
 
-API_KEY = <span class="str">"inv_demo_free_2026"</span>
-BASE    = <span class="str">"https://invisync.vercel.app"</span>
-
-<span class="cmt"># Decode image</span>
-<span class="kw">def</span> <span class="fn">decode_image</span>(path, password=<span class="val">None</span>):
-    <span class="kw">with</span> <span class="fn">open</span>(path, <span class="str">"rb"</span>) <span class="kw">as</span> f:
-        r = requests.<span class="fn">post</span>(
-            <span class="str">f"{BASE}/api/image/decode"</span>,
-            headers={<span class="str">"X-API-Key"</span>: API_KEY},
-            files={<span class="str">"stego"</span>: f},
-            data={<span class="str">"password"</span>: password} <span class="kw">if</span> password <span class="kw">else</span> {},
-        )
-    <span class="kw">return</span> r.<span class="fn">json</span>()[<span class="str">"message"</span>]
-
-<span class="cmt"># Decode QR</span>
-<span class="kw">def</span> <span class="fn">decode_qr</span>(path, password=<span class="val">None</span>):
-    <span class="kw">with</span> <span class="fn">open</span>(path, <span class="str">"rb"</span>) <span class="kw">as</span> f:
-        r = requests.<span class="fn">post</span>(
-            <span class="str">f"{BASE}/api/qr/decode"</span>,
-            headers={<span class="str">"X-API-Key"</span>: API_KEY},
-            files={<span class="str">"stego"</span>: f},
-            data={<span class="str">"password"</span>: password} <span class="kw">if</span> password <span class="kw">else</span> {},
-        )
-    <span class="kw">return</span> r.<span class="fn">json</span>()[<span class="str">"message"</span>]
-
-<span class="fn">print</span>(<span class="fn">decode_qr</span>(<span class="str">"stego_qr.png"</span>, password=<span class="str">"s3cur3P@ss"</span>))
-<span class="cmt"># → Operation Nightfall begins at dawn</span></pre>
+<span class="cmt"># → {</span>
+<span class="cmt">#     "plan_id": "growth_monthly",</span>
+<span class="cmt">#     "billing": "monthly",</span>
+<span class="cmt">#     "tokens_used": 240,</span>
+<span class="cmt">#     "tokens_remaining": 4760,</span>
+<span class="cmt">#     "tokens_per_period": 5000,</span>
+<span class="cmt">#     "period_end": "2026-12-17"</span>
+<span class="cmt"># }</span></pre>
     </div>
   </div>
 </section>
 
-<!-- ── Endpoint Reference ─────────────────────────────────── -->
+<!-- Endpoint Reference -->
 <section id="endpoints">
   <div class="container">
     <h2 class="section-h">Endpoint Reference</h2>
-    <p class="section-sub">All endpoints accept <code style="color:var(--accent)">multipart/form-data</code>. Pass your key as <code style="color:var(--accent)">X-API-Key: inv_…</code> header.<br>
-    Token costs are deducted per successful operation. Failed requests (4xx/5xx) cost 0 tokens.</p>
+    <p class="section-sub">All endpoints accept <code style="color:var(--accent)">multipart/form-data</code>. Pass your key as <code style="color:var(--accent)">X-API-Key: inv_…</code> header.<br>Failed requests (4xx/5xx) cost 0 tokens. See <a href="/api/docs" style="color:var(--accent)" target="_blank">full interactive docs</a> at /api/docs.</p>
 
     <div class="ep-group">
       <div class="ep-group-label">System</div>
-      <div class="ep"><div class="ep-method get">GET</div><div class="ep-path">/api/health<small>Returns service status and version. No API key required.</small></div><div class="ep-cost">0 tokens</div></div>
+      <div class="ep"><div class="ep-method get">GET</div><div class="ep-path">/api/health<small>Returns service status. No API key required.</small></div><div class="ep-cost">0 tokens</div></div>
+      <div class="ep"><div class="ep-method get">GET</div><div class="ep-path">/api/key-status<small>Returns your plan, tokens used/remaining, period end. Requires X-API-Key.</small></div><div class="ep-cost">0 tokens</div></div>
+      <div class="ep"><div class="ep-method get">GET</div><div class="ep-path">/api/payments/config<small>Returns Razorpay key_id and all plan details.</small></div><div class="ep-cost">0 tokens</div></div>
     </div>
 
     <div class="ep-group">
       <div class="ep-group-label">Image — PNG / BMP</div>
-      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/image/encode<small>Fields: <code>cover</code> (file), <code>message</code> (string), <code>password</code> (optional) → Returns stego PNG/BMP</small></div><div class="ep-cost">10 tokens</div></div>
-      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/image/decode<small>Fields: <code>stego</code> (file), <code>password</code> (optional) → Returns <code>{"message": "..."}</code></small></div><div class="ep-cost">5 tokens</div></div>
+      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/image/encode<small>Fields: <code>cover</code> (file), <code>message</code>, <code>password</code> (optional) → Returns stego PNG/BMP</small></div><div class="ep-cost">10 tokens</div></div>
+      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/image/decode<small>Fields: <code>stego</code> (file), <code>password</code> (optional) → Returns <code>{"message":"..."}</code></small></div><div class="ep-cost">5 tokens</div></div>
     </div>
 
     <div class="ep-group">
-      <div class="ep-group-label">Audio — WAV / FLAC / AIFF / MP3 input</div>
+      <div class="ep-group-label">Audio — WAV / FLAC / AIFF / MP3</div>
       <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/audio/encode<small>Fields: <code>cover</code> (file), <code>message</code>, <code>password</code> (optional) → Returns stego WAV</small></div><div class="ep-cost">20 tokens</div></div>
-      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/audio/decode<small>Fields: <code>stego</code> (file), <code>password</code> (optional) → Returns <code>{"message": "..."}</code></small></div><div class="ep-cost">10 tokens</div></div>
+      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/audio/decode<small>Fields: <code>stego</code> (file), <code>password</code> (optional) → Returns <code>{"message":"..."}</code></small></div><div class="ep-cost">10 tokens</div></div>
     </div>
 
     <div class="ep-group">
-      <div class="ep-group-label">QR Code — PNG (stays scannable)</div>
-      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/qr/encode<small>Fields: <code>url</code>, <code>message</code>, <code>scale</code> (1–20, default 10), <code>password</code> (optional) → Returns stego QR PNG</small></div><div class="ep-cost">10 tokens</div></div>
-      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/qr/decode<small>Fields: <code>stego</code> (PNG file), <code>password</code> (optional) → Returns <code>{"message": "..."}</code></small></div><div class="ep-cost">5 tokens</div></div>
+      <div class="ep-group-label">QR Code — stays scannable</div>
+      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/qr/encode<small>Fields: <code>url</code>, <code>message</code>, <code>scale</code> (1–20), <code>password</code> (optional) → Returns stego QR PNG</small></div><div class="ep-cost">10 tokens</div></div>
+      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/qr/decode<small>Fields: <code>stego</code> (PNG file), <code>password</code> (optional) → Returns <code>{"message":"..."}</code></small></div><div class="ep-cost">5 tokens</div></div>
       <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/qr/generate<small>Fields: <code>url</code>, <code>scale</code> (1–20) → Returns plain QR PNG (no hidden data)</small></div><div class="ep-cost">2 tokens</div></div>
     </div>
 
     <div class="ep-group">
-      <div class="ep-group-label">Text — Zero-width Unicode (invisible in any platform)</div>
-      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/text/encode<small>Fields: <code>cover</code> (string), <code>message</code>, <code>password</code> (optional) → Returns <code>{"stego_text": "..."}</code></small></div><div class="ep-cost">5 tokens</div></div>
-      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/text/decode<small>Fields: <code>stego_text</code> (string), <code>password</code> (optional) → Returns <code>{"message": "..."}</code></small></div><div class="ep-cost">2 tokens</div></div>
+      <div class="ep-group-label">Text — Zero-width Unicode</div>
+      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/text/encode<small>Fields: <code>cover</code> (string), <code>message</code>, <code>password</code> (optional) → Returns <code>{"stego_text":"..."}</code></small></div><div class="ep-cost">5 tokens</div></div>
+      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/text/decode<small>Fields: <code>stego_text</code> (string), <code>password</code> (optional) → Returns <code>{"message":"..."}</code></small></div><div class="ep-cost">2 tokens</div></div>
     </div>
 
     <div class="ep-group">
-      <div class="ep-group-label">PDF — Invisible text layer / metadata injection</div>
+      <div class="ep-group-label">PDF — invisible text layer</div>
       <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/pdf/encode<small>Fields: <code>message</code>, <code>cover</code> (existing PDF, optional), <code>password</code> (optional) → Returns stego PDF</small></div><div class="ep-cost">10 tokens</div></div>
-      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/pdf/decode<small>Fields: <code>stego</code> (PDF file), <code>password</code> (optional) → Returns <code>{"message": "..."}</code></small></div><div class="ep-cost">5 tokens</div></div>
+      <div class="ep"><div class="ep-method post">POST</div><div class="ep-path">/api/pdf/decode<small>Fields: <code>stego</code> (PDF file), <code>password</code> (optional) → Returns <code>{"message":"..."}</code></small></div><div class="ep-cost">5 tokens</div></div>
     </div>
-
   </div>
 </section>
 
-<!-- ── Response headers ───────────────────────────────────── -->
+<!-- Response Headers -->
 <section id="headers">
   <div class="container">
     <h2 class="section-h">Response Headers</h2>
-    <p class="section-sub">Every API response includes these headers when an API key is present.</p>
-    <table class="err-table">
+    <p class="section-sub">Every API response includes these when an API key is present.</p>
+    <table class="tbl">
       <thead><tr><th>Header</th><th>Example</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td>X-Tokens-Used</td><td><code>10</code></td><td>Tokens deducted for this request</td></tr>
-        <tr><td>X-Tokens-Remaining</td><td><code>940</code></td><td>Tokens left in your balance (live keys) or daily quota (demo)</td></tr>
-        <tr><td>X-Plan</td><td><code>starter</code></td><td>Your current plan: <code>free</code>, <code>starter</code>, <code>growth</code>, <code>pro</code></td></tr>
-        <tr><td>X-Request-Id</td><td><code>req_abc123</code></td><td>Unique request ID — quote this in support emails</td></tr>
+        <tr><td>X-Tokens-Remaining</td><td><code>4760</code></td><td>Tokens left in current period</td></tr>
+        <tr><td>X-Plan</td><td><code>growth_monthly</code></td><td>Your current plan ID</td></tr>
+        <tr><td>X-Request-Id</td><td><code>req_abc123def456</code></td><td>Unique ID — quote in support emails</td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
-<!-- ── Error codes ────────────────────────────────────────── -->
+<!-- Error Codes -->
 <section id="errors">
   <div class="container">
     <h2 class="section-h">Error Codes</h2>
-    <p class="section-sub">All errors return <code style="color:var(--accent)">application/json</code> with <code>{"detail": "reason"}</code>.</p>
-    <table class="err-table">
+    <p class="section-sub">All errors return <code style="color:var(--accent)">application/json</code> with <code>{"detail":"reason"}</code>.</p>
+    <table class="tbl">
       <thead><tr><th>HTTP</th><th>When it happens</th></tr></thead>
       <tbody>
-        <tr><td>400</td><td>Missing required field (message, url, etc.)</td></tr>
-        <tr><td>401</td><td>Missing or invalid <code>X-API-Key</code> header</td></tr>
-        <tr><td>402</td><td>Insufficient token balance — top up to continue</td></tr>
+        <tr><td>400</td><td>Missing required field, invalid plan, bad JSON body</td></tr>
+        <tr><td>401</td><td>Missing or invalid X-API-Key header</td></tr>
+        <tr><td>402</td><td>Insufficient token balance or expired plan — top up</td></tr>
         <tr><td>413</td><td>File exceeds 50 MB limit</td></tr>
-        <tr><td>422</td><td>Invalid file type, corrupt file, decryption failed, payload too large for carrier, or no hidden data found</td></tr>
+        <tr><td>422</td><td>Invalid file type, corrupt file, decryption failed, payload too large, no hidden data found</td></tr>
         <tr><td>429</td><td>Rate limit exceeded (100 req/min per key)</td></tr>
         <tr><td>500</td><td>Unexpected server error — no internal details exposed</td></tr>
       </tbody>
@@ -510,42 +564,60 @@ BASE    = <span class="str">"https://invisync.vercel.app"</span>
   </div>
 </section>
 
-<!-- ── Get API Key ────────────────────────────────────────── -->
-<section id="get-key">
+<!-- Check Key Balance -->
+<section id="key-status">
   <div class="container">
-    <h2 class="section-h">Request an API Key</h2>
-    <p class="section-sub">Fill in this form — your key will be delivered by email within 24 hours.<br>
-    Use <code style="color:var(--accent)">inv_demo_free_2026</code> for 100 free tokens/day while you wait.</p>
-    <div class="key-form">
-      <div class="form-row">
-        <div>
-          <label>Your name</label>
-          <input type="text" id="kf-name" placeholder="Deepesh Mahawar">
-        </div>
-        <div>
-          <label>Email address</label>
-          <input type="email" id="kf-email" placeholder="you@example.com">
-        </div>
-      </div>
-      <label>Project / Use case</label>
-      <input type="text" id="kf-project" placeholder="e.g. secure document watermarking for my SaaS">
-      <label>Plan</label>
-      <select id="kf-plan">
-        <option value="starter">Starter — ₹50 / 1,000 tokens</option>
-        <option value="growth">Growth — ₹200 / 5,000 tokens</option>
-        <option value="pro">Pro — ₹500 / 15,000 tokens</option>
-        <option value="free">Free Demo Key (100 tokens/day)</option>
-      </select>
-      <label>Notes (optional)</label>
-      <textarea id="kf-notes" placeholder="Anything else we should know…"></textarea>
-      <div class="form-note">Your info is used only to provision your key. We don't share it with anyone.</div>
-      <button class="btn btn-primary" onclick="submitKeyRequest(this)" style="width:100%;max-width:300px">Send Key Request →</button>
-      <div class="form-success" id="kf-success">
-        ✓ Request sent! Check your inbox within 24 hours. In the meantime, use <strong>inv_demo_free_2026</strong> for free.
-      </div>
+    <h2 class="section-h">Check Key Balance</h2>
+    <p class="section-sub">Already have a key? Check remaining tokens, plan, and period end.</p>
+    <div class="key-check-form">
+      <input type="text" id="ks-input" placeholder="inv_live_... or inv_demo_free_2026" spellcheck="false" autocomplete="off">
+      <button onclick="checkKeyStatus()">Check →</button>
     </div>
+    <div class="key-status-result" id="ks-result"></div>
   </div>
 </section>
+
+<!-- Payment modal -->
+<div class="modal-backdrop" id="buy-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeBuy()">✕</button>
+    <h3 id="modal-plan-name">Plan</h3>
+    <div class="plan-desc" id="modal-plan-desc"></div>
+    <label>Name</label>
+    <input type="text" id="modal-name" placeholder="Your full name">
+    <label>Email</label>
+    <input type="email" id="modal-email" placeholder="you@example.com">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeBuy()">Cancel</button>
+      <button class="btn btn-primary" id="pay-btn" onclick="startPayment()">Pay with Razorpay →</button>
+    </div>
+    <p style="font-size:11px;color:var(--text-dim);margin-top:14px;text-align:center">
+      UPI · Credit/Debit Card · Net Banking · Wallets · Secured by Razorpay
+    </p>
+  </div>
+</div>
+
+<!-- Success modal -->
+<div class="modal-backdrop" id="success-modal">
+  <div class="modal">
+    <h3 style="color:var(--green)">Payment Successful ✓</h3>
+    <p style="font-size:13px;color:var(--text-dim);margin:10px 0 20px">Your API key is ready. Copy it now — it won't be shown again.</p>
+    <div class="success-key-box">
+      <code id="success-key">inv_live_xxx</code>
+      <button class="copy-btn" onclick="copyKey()">Copy</button>
+    </div>
+    <div class="success-note">
+      <strong>Plan:</strong> <span id="sn-plan">—</span> &nbsp;·&nbsp;
+      <strong>Tokens:</strong> <span id="sn-tokens">—</span> &nbsp;·&nbsp;
+      <strong>Resets:</strong> <span id="sn-resets">—</span>
+    </div>
+    <div class="success-note">
+      Add this key as <code style="color:var(--accent)">X-API-Key</code> header on every request.<br>
+      See <a href="#quickstart" style="color:var(--accent)">Quick Start</a> for code examples.
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('success-modal').classList.remove('open')" style="width:100%;margin-top:14px">Done</button>
+  </div>
+</div>
 
 <footer>
   <div class="footer-inner">
@@ -553,58 +625,203 @@ BASE    = <span class="str">"https://invisync.vercel.app"</span>
     <div>
       <a href="/">Toolkit</a> &nbsp;·&nbsp;
       <a href="/developer">Developer</a> &nbsp;·&nbsp;
-      <a href="/api/docs" target="_blank">API Reference</a> &nbsp;·&nbsp;
+      <a href="/api/docs" target="_blank">API Docs</a> &nbsp;·&nbsp;
       <a href="https://github.com/deepmaha2006/steganography-toolkit" target="_blank">GitHub</a>
       &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; © 2026 deepmaha2006
     </div>
-    <div>AES-256-GCM · PBKDF2 600k iters · LSB</div>
+    <div>AES-256-GCM · PBKDF2 600k · LSB</div>
   </div>
 </footer>
 
 <script>
-function switchTab(btn, panelId) {
-  document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+// plan config — loaded live from /api/payments/config
+let _plans = {};
+let _rzpKeyId = '';
+let _selectedPlan = '';
+
+(async function loadConfig() {
+  try {
+    const r = await fetch('/api/payments/config');
+    const cfg = await r.json();
+    _plans    = cfg.plans || {};
+    _rzpKeyId = cfg.razorpay_key_id || '';
+  } catch {}
+})();
+
+// fallback labels (used before config loads)
+const PLAN_LABELS = {
+  starter_monthly: { name: 'Starter Monthly',  desc: '₹49/month · 1,000 tokens/month' },
+  growth_monthly:  { name: 'Growth Monthly',   desc: '₹149/month · 5,000 tokens/month' },
+  pro_monthly:     { name: 'Pro Monthly',      desc: '₹499/month · 20,000 tokens/month' },
+  starter_yearly:  { name: 'Starter Yearly',   desc: '₹399/year · 1,000 tokens/month' },
+  growth_yearly:   { name: 'Growth Yearly',    desc: '₹1,199/year · 5,000 tokens/month' },
+  pro_yearly:      { name: 'Pro Yearly',       desc: '₹3,999/year · 20,000 tokens/month' },
+  pack_1k:         { name: '1K Token Pack',    desc: '₹50 · 1,000 tokens, never expires' },
+  pack_5k:         { name: '5K Token Pack',    desc: '₹200 · 5,000 tokens, never expires' },
+  pack_15k:        { name: '15K Token Pack',   desc: '₹500 · 15,000 tokens, never expires' },
+};
+
+// pricing tabs
+function switchPlan(type, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('plan-' + type).classList.add('active');
+}
+
+// code example tabs
+function switchCode(btn, paneId) {
+  document.querySelectorAll('.code-tab').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.code-pane').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById(panelId).classList.add('active');
+  document.getElementById(paneId).classList.add('active');
 }
 
-async function submitKeyRequest(btn) {
-  const name    = document.getElementById('kf-name').value.trim();
-  const email   = document.getElementById('kf-email').value.trim();
-  const project = document.getElementById('kf-project').value.trim();
-  const plan    = document.getElementById('kf-plan').value;
-  const notes   = document.getElementById('kf-notes').value.trim();
+// open buy modal
+function openBuy(planId) {
+  _selectedPlan = planId;
+  const live = _plans[planId];
+  const fb   = PLAN_LABELS[planId] || {};
+  document.getElementById('modal-plan-name').textContent = (live && live.label) || fb.name || planId;
+  document.getElementById('modal-plan-desc').textContent = (live && live.display) || fb.desc || '';
+  document.getElementById('buy-modal').classList.add('open');
+}
 
-  if (!name || !email) { alert('Please enter your name and email.'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Enter a valid email address.'); return; }
+function closeBuy() {
+  document.getElementById('buy-modal').classList.remove('open');
+}
 
+// payment flow
+async function startPayment() {
+  const name  = document.getElementById('modal-name').value.trim();
+  const email = document.getElementById('modal-email').value.trim();
+  if (!name)  { alert('Please enter your name.'); return; }
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+  if (!_rzpKeyId) {
+    alert('Payment gateway is not yet configured.\nContact deepeshmahawar2006@gmail.com to request a key manually.');
+    return;
+  }
+
+  const btn = document.getElementById('pay-btn');
   btn.disabled = true;
-  btn.textContent = 'Sending…';
+  btn.textContent = 'Creating order…';
 
   try {
-    const r = await fetch('/api/key-request', {
+    const or = await fetch('/api/payments/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, project, plan, notes }),
+      body: JSON.stringify({ plan_id: _selectedPlan, name, email }),
     });
-    if (r.ok) {
-      document.getElementById('kf-success').style.display = 'block';
-      btn.style.display = 'none';
-    } else {
-      btn.disabled = false;
-      btn.textContent = 'Send Key Request →';
-      alert('Something went wrong. Email deepeshmahawar2006@gmail.com directly with your request.');
+    if (!or.ok) {
+      const err = await or.json().catch(() => ({}));
+      throw new Error(err.detail || 'Order creation failed. Try again.');
     }
-  } catch {
+    const order = await or.json();
+
+    const rzp = new Razorpay({
+      key:         _rzpKeyId,
+      amount:      order.amount,
+      currency:    'INR',
+      name:        'Invisync',
+      description: order.label,
+      order_id:    order.order_id,
+      prefill:     { name, email },
+      theme:       { color: '#cc410f' },
+      modal: {
+        ondismiss: () => {
+          btn.disabled = false;
+          btn.textContent = 'Pay with Razorpay →';
+        },
+      },
+      handler: async (response) => {
+        btn.textContent = 'Verifying payment…';
+        try {
+          const vr = await fetch('/api/payments/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...response, name, email, plan_id: _selectedPlan }),
+          });
+          if (!vr.ok) {
+            const err = await vr.json().catch(() => ({}));
+            throw new Error(err.detail || 'Verification failed');
+          }
+          const result = await vr.json();
+          closeBuy();
+          showSuccess(result);
+        } catch (e) {
+          alert('Payment received but key generation failed.\nEmail deepeshmahawar2006@gmail.com with payment ID: ' + response.razorpay_payment_id);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Pay with Razorpay →';
+        }
+      },
+    });
+    rzp.open();
+  } catch (e) {
+    alert(e.message || 'Something went wrong. Please try again.');
     btn.disabled = false;
-    btn.textContent = 'Send Key Request →';
-    // Fallback: open email client
-    const sub = encodeURIComponent(`Invisync API Key Request — ${plan}`);
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nProject: ${project}\nPlan: ${plan}\nNotes: ${notes}`);
-    window.location.href = `mailto:deepeshmahawar2006@gmail.com?subject=${sub}&body=${body}`;
+    btn.textContent = 'Pay with Razorpay →';
   }
 }
+
+function showSuccess(result) {
+  document.getElementById('success-key').textContent = result.api_key;
+  document.getElementById('sn-plan').textContent   = result.label || result.plan_id;
+  document.getElementById('sn-tokens').textContent = (result.tokens || 0).toLocaleString();
+  const billingMap = {
+    monthly: 'every 30 days',
+    yearly:  'every 30 days (within 1-year subscription)',
+    onetime: 'never — no expiry',
+  };
+  document.getElementById('sn-resets').textContent = billingMap[result.billing] || result.billing;
+  document.getElementById('success-modal').classList.add('open');
+}
+
+function copyKey() {
+  const key = document.getElementById('success-key').textContent;
+  navigator.clipboard.writeText(key).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  }).catch(() => {
+    prompt('Copy your API key:', key);
+  });
+}
+
+// key status checker
+async function checkKeyStatus() {
+  const key = document.getElementById('ks-input').value.trim();
+  if (!key) { alert('Enter your API key first.'); return; }
+  const el = document.getElementById('ks-result');
+  el.style.display = 'block';
+  el.className = 'key-status-result';
+  el.textContent = 'Checking…';
+  try {
+    const r = await fetch('/api/key-status', { headers: { 'X-API-Key': key } });
+    const data = await r.json();
+    if (!r.ok) {
+      el.className = 'key-status-result err';
+      el.innerHTML = '<strong>Error ' + r.status + ':</strong> ' + (data.detail || 'Invalid key');
+      return;
+    }
+    el.className = 'key-status-result ok';
+    const pct = data.tokens_per_period > 0 ? Math.round(data.tokens_remaining / data.tokens_per_period * 100) : 0;
+    el.innerHTML =
+      '<strong style="color:var(--green)">✓ Valid key</strong><br>' +
+      'Plan: <strong>' + data.plan_id + '</strong> &nbsp;·&nbsp; Billing: <strong>' + data.billing + '</strong><br>' +
+      'Tokens used: <strong>' + data.tokens_used + '</strong> / <strong>' + data.tokens_per_period + '</strong><br>' +
+      'Remaining: <strong style="color:var(--accent)">' + data.tokens_remaining + '</strong> (' + pct + '%)' +
+      (data.period_end ? '<br>Period ends: <strong>' + data.period_end + '</strong>' : '') +
+      (data.plan_expires ? '<br>Plan expires: <strong>' + data.plan_expires + '</strong>' : '');
+  } catch {
+    el.className = 'key-status-result err';
+    el.textContent = 'Network error — please try again.';
+  }
+}
+
+document.getElementById('ks-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkKeyStatus();
+});
 </script>
 </body>
 </html>
