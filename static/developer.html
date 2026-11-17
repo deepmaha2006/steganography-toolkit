@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Geist+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
 :root {
   --canvas:        #14120f;
@@ -207,151 +206,61 @@ footer a:hover{color:var(--accent)}
   </div>
 </div>
 
-<!-- Pricing -->
-<section id="pricing">
+<!-- Free Launch Banner -->
+<section id="pricing" style="background:var(--surface)">
   <div class="container">
-    <h2 class="section-h">Plans & Pricing</h2>
-    <p class="section-sub">Pay via UPI, debit/credit card, net banking, or wallets. API key delivered instantly after payment is verified.</p>
-
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchPlan('monthly',this)">Monthly</button>
-      <button class="tab-btn" onclick="switchPlan('yearly',this)">Yearly <span class="yearly-badge">Save 32%</span></button>
-      <button class="tab-btn" onclick="switchPlan('onetime',this)">Token Packs</button>
-    </div>
-
-    <!-- monthly -->
-    <div class="tab-pane active plans-grid" id="plan-monthly">
-      <div class="plan" onclick="openBuy('starter_monthly')">
-        <div class="plan-name">Starter</div>
-        <div class="plan-price"><sup>₹</sup>49<sub>/month</sub></div>
-        <div class="plan-tokens">1,000 tokens / month</div>
+    <p class="eyebrow">Free Launch</p>
+    <h2 class="section-h">100% Free for Everyone</h2>
+    <p class="section-sub" style="max-width:640px">
+      Invisync is free during our launch period — no credit card, no sign-up, no API key required.
+      Everyone gets <strong style="color:var(--accent)">10 free operations per day</strong> tracked by IP address.
+      Counter resets at midnight UTC. The token / payment system is coming in a future version — integrators will need to update to the new <code style="color:var(--accent)">/api/v2/*</code> endpoints when it launches.
+    </p>
+    <div class="plans-grid" style="display:grid;margin-bottom:0">
+      <div class="plan">
+        <div class="plan-popular">Current — Free Launch</div>
+        <div class="plan-name">Free Tier</div>
+        <div class="plan-price">₹0</div>
+        <div class="plan-tokens">10 operations / day / IP</div>
         <ul class="plan-features">
-          <li>Auto-resets every 30 days</li>
+          <li>No API key required</li>
           <li>All 5 stego channels</li>
           <li>AES-256-GCM encryption</li>
           <li>50 MB file limit</li>
-          <li>Usage response headers</li>
+          <li>Rate-limit headers in every response</li>
+          <li>Use from browser UI or direct API</li>
         </ul>
-        <button class="plan-cta">Buy Starter →</button>
+        <a href="#quickstart" class="plan-cta">View Quick Start →</a>
       </div>
-      <div class="plan featured" onclick="openBuy('growth_monthly')">
-        <div class="plan-popular">Most Popular</div>
-        <div class="plan-name">Growth</div>
-        <div class="plan-price"><sup>₹</sup>149<sub>/month</sub></div>
-        <div class="plan-tokens">5,000 tokens / month</div>
+      <div class="plan featured">
+        <div class="plan-popular">Coming Soon — Token System</div>
+        <div class="plan-name">Paid Plans</div>
+        <div class="plan-price" style="font-size:20px;padding-top:8px">Monthly · Yearly · Packs</div>
+        <div class="plan-tokens">Will require API key on /api/v2/*</div>
         <ul class="plan-features">
-          <li>Auto-resets every 30 days</li>
-          <li>All 5 stego channels</li>
-          <li>AES-256-GCM encryption</li>
-          <li>50 MB file limit</li>
-          <li>Usage response headers</li>
-          <li>Priority email support</li>
+          <li>Starter / Growth / Pro tiers</li>
+          <li>Monthly and yearly billing</li>
+          <li>One-time token packs (no expiry)</li>
+          <li>UPI, card, net banking via Razorpay</li>
+          <li>Instant key delivery after payment</li>
+          <li>Token reset headers each month</li>
         </ul>
-        <button class="plan-cta">Buy Growth →</button>
+        <span class="plan-cta" style="cursor:default;opacity:.5;border-style:dashed">Not yet available</span>
       </div>
-      <div class="plan" onclick="openBuy('pro_monthly')">
-        <div class="plan-name">Pro</div>
-        <div class="plan-price"><sup>₹</sup>499<sub>/month</sub></div>
-        <div class="plan-tokens">20,000 tokens / month</div>
+      <div class="plan">
+        <div class="plan-popular">Versioning — Integrators Read This</div>
+        <div class="plan-name">API v1 → v2</div>
+        <div class="plan-price" style="font-size:18px;padding-top:8px">Breaking change on v2</div>
+        <div class="plan-tokens">Build on /api/v1/* today</div>
         <ul class="plan-features">
-          <li>Auto-resets every 30 days</li>
-          <li>All 5 stego channels</li>
-          <li>AES-256-GCM encryption</li>
-          <li>50 MB file limit</li>
-          <li>Usage response headers</li>
-          <li>Priority support + SLA</li>
+          <li><code>/api/v1/*</code> = canonical free endpoints</li>
+          <li><code>/api/*</code> = same, backward-compat alias</li>
+          <li>v2 will add <code>X-API-Key</code> requirement</li>
+          <li>v1 gets <code>Deprecation</code> header warning</li>
+          <li>v1 eventually returns 410 Gone</li>
+          <li>Star GitHub repo to get notified</li>
         </ul>
-        <button class="plan-cta">Buy Pro →</button>
-      </div>
-    </div>
-
-    <!-- yearly -->
-    <div class="tab-pane plans-grid" id="plan-yearly">
-      <div class="plan" onclick="openBuy('starter_yearly')">
-        <div class="plan-name">Starter</div>
-        <div class="plan-price"><sup>₹</sup>399<sub>/year</sub></div>
-        <div class="plan-tokens">1,000 tokens / month · save ₹189</div>
-        <ul class="plan-features">
-          <li>Tokens reset every 30 days</li>
-          <li>12 months coverage</li>
-          <li>All 5 stego channels</li>
-          <li>AES-256-GCM encryption</li>
-          <li>50 MB file limit</li>
-        </ul>
-        <button class="plan-cta">Buy Starter Yearly →</button>
-      </div>
-      <div class="plan featured" onclick="openBuy('growth_yearly')">
-        <div class="plan-popular">Best Value</div>
-        <div class="plan-name">Growth</div>
-        <div class="plan-price"><sup>₹</sup>1,199<sub>/year</sub></div>
-        <div class="plan-tokens">5,000 tokens / month · save ₹589</div>
-        <ul class="plan-features">
-          <li>Tokens reset every 30 days</li>
-          <li>12 months coverage</li>
-          <li>All 5 stego channels</li>
-          <li>AES-256-GCM encryption</li>
-          <li>50 MB file limit</li>
-          <li>Priority email support</li>
-        </ul>
-        <button class="plan-cta">Buy Growth Yearly →</button>
-      </div>
-      <div class="plan" onclick="openBuy('pro_yearly')">
-        <div class="plan-name">Pro</div>
-        <div class="plan-price"><sup>₹</sup>3,999<sub>/year</sub></div>
-        <div class="plan-tokens">20,000 tokens / month · save ₹1,989</div>
-        <ul class="plan-features">
-          <li>Tokens reset every 30 days</li>
-          <li>12 months coverage</li>
-          <li>All 5 stego channels</li>
-          <li>AES-256-GCM encryption</li>
-          <li>50 MB file limit</li>
-          <li>Priority support + SLA</li>
-        </ul>
-        <button class="plan-cta">Buy Pro Yearly →</button>
-      </div>
-    </div>
-
-    <!-- one-time token packs -->
-    <div class="tab-pane plans-grid" id="plan-onetime">
-      <div class="plan" onclick="openBuy('pack_1k')">
-        <div class="plan-name">1K Pack</div>
-        <div class="plan-price"><sup>₹</sup>50</div>
-        <div class="plan-tokens">1,000 tokens — never expires</div>
-        <ul class="plan-features">
-          <li>No monthly reset</li>
-          <li>Use at your own pace</li>
-          <li>All 5 stego channels</li>
-          <li>AES-256-GCM encryption</li>
-        </ul>
-        <button class="plan-cta">Buy 1K Pack →</button>
-      </div>
-      <div class="plan featured" onclick="openBuy('pack_5k')">
-        <div class="plan-popular">Best Value</div>
-        <div class="plan-name">5K Pack</div>
-        <div class="plan-price"><sup>₹</sup>200</div>
-        <div class="plan-tokens">5,000 tokens — never expires</div>
-        <ul class="plan-features">
-          <li>No monthly reset</li>
-          <li>Use at your own pace</li>
-          <li>All 5 stego channels</li>
-          <li>AES-256-GCM encryption</li>
-          <li>Usage response headers</li>
-        </ul>
-        <button class="plan-cta">Buy 5K Pack →</button>
-      </div>
-      <div class="plan" onclick="openBuy('pack_15k')">
-        <div class="plan-name">15K Pack</div>
-        <div class="plan-price"><sup>₹</sup>500</div>
-        <div class="plan-tokens">15,000 tokens — never expires</div>
-        <ul class="plan-features">
-          <li>No monthly reset</li>
-          <li>Use at your own pace</li>
-          <li>All 5 stego channels</li>
-          <li>AES-256-GCM encryption</li>
-          <li>Usage response headers</li>
-          <li>Priority support</li>
-        </ul>
-        <button class="plan-cta">Buy 15K Pack →</button>
+        <a href="https://github.com/deepmaha2006/steganography-toolkit" target="_blank" class="plan-cta">Watch on GitHub →</a>
       </div>
     </div>
   </div>
@@ -564,60 +473,18 @@ BASE    = <span class="str">"https://invisync.vercel.app"</span>
   </div>
 </section>
 
-<!-- Check Key Balance -->
+<!-- Daily Usage Status -->
 <section id="key-status">
   <div class="container">
-    <h2 class="section-h">Check Key Balance</h2>
-    <p class="section-sub">Already have a key? Check remaining tokens, plan, and period end.</p>
+    <h2 class="section-h">Your Daily Usage</h2>
+    <p class="section-sub">Check how many free operations you have left today (tracked by IP, resets at midnight UTC).</p>
     <div class="key-check-form">
-      <input type="text" id="ks-input" placeholder="inv_live_... or inv_demo_free_2026" spellcheck="false" autocomplete="off">
-      <button onclick="checkKeyStatus()">Check →</button>
+      <button onclick="checkKeyStatus()">Refresh Status →</button>
     </div>
     <div class="key-status-result" id="ks-result"></div>
   </div>
 </section>
 
-<!-- Payment modal -->
-<div class="modal-backdrop" id="buy-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeBuy()">✕</button>
-    <h3 id="modal-plan-name">Plan</h3>
-    <div class="plan-desc" id="modal-plan-desc"></div>
-    <label>Name</label>
-    <input type="text" id="modal-name" placeholder="Your full name">
-    <label>Email</label>
-    <input type="email" id="modal-email" placeholder="you@example.com">
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeBuy()">Cancel</button>
-      <button class="btn btn-primary" id="pay-btn" onclick="startPayment()">Pay with Razorpay →</button>
-    </div>
-    <p style="font-size:11px;color:var(--text-dim);margin-top:14px;text-align:center">
-      UPI · Credit/Debit Card · Net Banking · Wallets · Secured by Razorpay
-    </p>
-  </div>
-</div>
-
-<!-- Success modal -->
-<div class="modal-backdrop" id="success-modal">
-  <div class="modal">
-    <h3 style="color:var(--green)">Payment Successful ✓</h3>
-    <p style="font-size:13px;color:var(--text-dim);margin:10px 0 20px">Your API key is ready. Copy it now — it won't be shown again.</p>
-    <div class="success-key-box">
-      <code id="success-key">inv_live_xxx</code>
-      <button class="copy-btn" onclick="copyKey()">Copy</button>
-    </div>
-    <div class="success-note">
-      <strong>Plan:</strong> <span id="sn-plan">—</span> &nbsp;·&nbsp;
-      <strong>Tokens:</strong> <span id="sn-tokens">—</span> &nbsp;·&nbsp;
-      <strong>Resets:</strong> <span id="sn-resets">—</span>
-    </div>
-    <div class="success-note">
-      Add this key as <code style="color:var(--accent)">X-API-Key</code> header on every request.<br>
-      See <a href="#quickstart" style="color:var(--accent)">Quick Start</a> for code examples.
-    </div>
-    <button class="btn btn-primary" onclick="document.getElementById('success-modal').classList.remove('open')" style="width:100%;margin-top:14px">Done</button>
-  </div>
-</div>
 
 <footer>
   <div class="footer-inner">
@@ -634,41 +501,6 @@ BASE    = <span class="str">"https://invisync.vercel.app"</span>
 </footer>
 
 <script>
-// plan config — loaded live from /api/payments/config
-let _plans = {};
-let _rzpKeyId = '';
-let _selectedPlan = '';
-
-(async function loadConfig() {
-  try {
-    const r = await fetch('/api/payments/config');
-    const cfg = await r.json();
-    _plans    = cfg.plans || {};
-    _rzpKeyId = cfg.razorpay_key_id || '';
-  } catch {}
-})();
-
-// fallback labels (used before config loads)
-const PLAN_LABELS = {
-  starter_monthly: { name: 'Starter Monthly',  desc: '₹49/month · 1,000 tokens/month' },
-  growth_monthly:  { name: 'Growth Monthly',   desc: '₹149/month · 5,000 tokens/month' },
-  pro_monthly:     { name: 'Pro Monthly',      desc: '₹499/month · 20,000 tokens/month' },
-  starter_yearly:  { name: 'Starter Yearly',   desc: '₹399/year · 1,000 tokens/month' },
-  growth_yearly:   { name: 'Growth Yearly',    desc: '₹1,199/year · 5,000 tokens/month' },
-  pro_yearly:      { name: 'Pro Yearly',       desc: '₹3,999/year · 20,000 tokens/month' },
-  pack_1k:         { name: '1K Token Pack',    desc: '₹50 · 1,000 tokens, never expires' },
-  pack_5k:         { name: '5K Token Pack',    desc: '₹200 · 5,000 tokens, never expires' },
-  pack_15k:        { name: '15K Token Pack',   desc: '₹500 · 15,000 tokens, never expires' },
-};
-
-// pricing tabs
-function switchPlan(type, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('plan-' + type).classList.add('active');
-}
-
 // code example tabs
 function switchCode(btn, paneId) {
   document.querySelectorAll('.code-tab').forEach(b => b.classList.remove('active'));
@@ -677,151 +509,30 @@ function switchCode(btn, paneId) {
   document.getElementById(paneId).classList.add('active');
 }
 
-// open buy modal
-function openBuy(planId) {
-  _selectedPlan = planId;
-  const live = _plans[planId];
-  const fb   = PLAN_LABELS[planId] || {};
-  document.getElementById('modal-plan-name').textContent = (live && live.label) || fb.name || planId;
-  document.getElementById('modal-plan-desc').textContent = (live && live.display) || fb.desc || '';
-  document.getElementById('buy-modal').classList.add('open');
-}
-
-function closeBuy() {
-  document.getElementById('buy-modal').classList.remove('open');
-}
-
-// payment flow
-async function startPayment() {
-  const name  = document.getElementById('modal-name').value.trim();
-  const email = document.getElementById('modal-email').value.trim();
-  if (!name)  { alert('Please enter your name.'); return; }
-  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
-  if (!_rzpKeyId) {
-    alert('Payment gateway is not yet configured.\nContact deepeshmahawar2006@gmail.com to request a key manually.');
-    return;
-  }
-
-  const btn = document.getElementById('pay-btn');
-  btn.disabled = true;
-  btn.textContent = 'Creating order…';
-
-  try {
-    const or = await fetch('/api/payments/create-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan_id: _selectedPlan, name, email }),
-    });
-    if (!or.ok) {
-      const err = await or.json().catch(() => ({}));
-      throw new Error(err.detail || 'Order creation failed. Try again.');
-    }
-    const order = await or.json();
-
-    const rzp = new Razorpay({
-      key:         _rzpKeyId,
-      amount:      order.amount,
-      currency:    'INR',
-      name:        'Invisync',
-      description: order.label,
-      order_id:    order.order_id,
-      prefill:     { name, email },
-      theme:       { color: '#cc410f' },
-      modal: {
-        ondismiss: () => {
-          btn.disabled = false;
-          btn.textContent = 'Pay with Razorpay →';
-        },
-      },
-      handler: async (response) => {
-        btn.textContent = 'Verifying payment…';
-        try {
-          const vr = await fetch('/api/payments/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...response, name, email, plan_id: _selectedPlan }),
-          });
-          if (!vr.ok) {
-            const err = await vr.json().catch(() => ({}));
-            throw new Error(err.detail || 'Verification failed');
-          }
-          const result = await vr.json();
-          closeBuy();
-          showSuccess(result);
-        } catch (e) {
-          alert('Payment received but key generation failed.\nEmail deepeshmahawar2006@gmail.com with payment ID: ' + response.razorpay_payment_id);
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'Pay with Razorpay →';
-        }
-      },
-    });
-    rzp.open();
-  } catch (e) {
-    alert(e.message || 'Something went wrong. Please try again.');
-    btn.disabled = false;
-    btn.textContent = 'Pay with Razorpay →';
-  }
-}
-
-function showSuccess(result) {
-  document.getElementById('success-key').textContent = result.api_key;
-  document.getElementById('sn-plan').textContent   = result.label || result.plan_id;
-  document.getElementById('sn-tokens').textContent = (result.tokens || 0).toLocaleString();
-  const billingMap = {
-    monthly: 'every 30 days',
-    yearly:  'every 30 days (within 1-year subscription)',
-    onetime: 'never — no expiry',
-  };
-  document.getElementById('sn-resets').textContent = billingMap[result.billing] || result.billing;
-  document.getElementById('success-modal').classList.add('open');
-}
-
-function copyKey() {
-  const key = document.getElementById('success-key').textContent;
-  navigator.clipboard.writeText(key).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = 'Copied!';
-    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
-  }).catch(() => {
-    prompt('Copy your API key:', key);
-  });
-}
-
-// key status checker
+// rate-limit status checker
 async function checkKeyStatus() {
-  const key = document.getElementById('ks-input').value.trim();
-  if (!key) { alert('Enter your API key first.'); return; }
   const el = document.getElementById('ks-result');
   el.style.display = 'block';
   el.className = 'key-status-result';
   el.textContent = 'Checking…';
   try {
-    const r = await fetch('/api/key-status', { headers: { 'X-API-Key': key } });
+    const r    = await fetch('/api/health');
     const data = await r.json();
-    if (!r.ok) {
-      el.className = 'key-status-result err';
-      el.innerHTML = '<strong>Error ' + r.status + ':</strong> ' + (data.detail || 'Invalid key');
-      return;
-    }
     el.className = 'key-status-result ok';
-    const pct = data.tokens_per_period > 0 ? Math.round(data.tokens_remaining / data.tokens_per_period * 100) : 0;
     el.innerHTML =
-      '<strong style="color:var(--green)">✓ Valid key</strong><br>' +
-      'Plan: <strong>' + data.plan_id + '</strong> &nbsp;·&nbsp; Billing: <strong>' + data.billing + '</strong><br>' +
-      'Tokens used: <strong>' + data.tokens_used + '</strong> / <strong>' + data.tokens_per_period + '</strong><br>' +
-      'Remaining: <strong style="color:var(--accent)">' + data.tokens_remaining + '</strong> (' + pct + '%)' +
-      (data.period_end ? '<br>Period ends: <strong>' + data.period_end + '</strong>' : '') +
-      (data.plan_expires ? '<br>Plan expires: <strong>' + data.plan_expires + '</strong>' : '');
+      '<strong style="color:var(--green)">✓ Service online</strong><br>' +
+      'Your daily limit: <strong>' + data.daily_limit + ' ops/day</strong><br>' +
+      'Used today: <strong style="color:var(--accent)">' + data.daily_used + '</strong> &nbsp;·&nbsp; ' +
+      'Remaining: <strong style="color:var(--green)">' + data.daily_remaining + '</strong><br>' +
+      '<span style="color:var(--text-dim);font-size:11px">Resets at midnight UTC · tracked by your IP</span>';
   } catch {
     el.className = 'key-status-result err';
-    el.textContent = 'Network error — please try again.';
+    el.textContent = 'Could not reach the API. Check your connection.';
   }
 }
 
-document.getElementById('ks-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkKeyStatus();
-});
+// auto-load status on page open
+checkKeyStatus();
 </script>
 </body>
 </html>
