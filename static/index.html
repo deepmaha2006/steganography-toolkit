@@ -5,151 +5,198 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Invisync — Professional Steganography Toolkit</title>
 <meta name="description" content="Invisync: hide encrypted data in images, audio, QR codes, text, and PDFs using military-grade AES-256-GCM encryption.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* ── Kraftline design tokens ── */
   :root {
-    --bg:      #0a0e1a;
-    --surface: #111827;
-    --card:    #1a2235;
-    --border:  #2a3a55;
-    --accent:  #00d4ff;
-    --accent2: #7c3aed;
-    --success: #10b981;
-    --warn:    #f59e0b;
-    --danger:  #ef4444;
-    --text:    #e2e8f0;
-    --muted:   #64748b;
-    --mono:    "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+    --font-primary:   'Geist Mono', 'Courier New', monospace;
+    --font-size-base: 14px;
+    --font-weight:    500;
+    --line-height:    18.2px;
+
+    --font-xs:   12px;
+    --font-sm:   14px;
+    --font-md:   16px;
+    --font-lg:   18px;
+    --font-xl:   20px;
+    --font-2xl:  32px;
+    --font-3xl:  42px;
+
+    --text-primary:   #ffffff;
+    --text-secondary: #e7e4de;
+    --text-dim:       rgba(231,228,222,.45);
+    --surface:        #000000;
+    --surface-raised: #0c0c0c;
+    --surface-input:  #101010;
+    --border:         rgba(231,228,222,.1);
+    --border-hover:   rgba(231,228,222,.3);
+    --border-active:  rgba(231,228,222,.8);
+
+    --space-1: 6px;
+    --space-2: 9px;
+    --space-3: 10px;
+    --space-4: 16px;
+    --space-5: 150px;
+
+    --radius: 10px;
+    --shadow: rgba(5,8,12,.1) 0px 2px 4px 0px;
+
+    --motion-instant: 400ms;
+    --motion-fast:    450ms;
+
+    --success: rgba(231,228,222,.85);
+    --danger:  rgba(231,228,222,.65);
   }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
-    font-family: "Inter", system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    line-height: 1.6;
+    font-family: var(--font-primary);
+    font-size:   var(--font-size-base);
+    font-weight: var(--font-weight);
+    line-height: var(--line-height);
+    background:  var(--surface);
+    color:       var(--text-secondary);
+    min-height:  100vh;
   }
 
   /* ── header ── */
   header {
-    display: flex;
-    align-items: center;
+    display:         flex;
+    align-items:     center;
     justify-content: space-between;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid var(--border);
-    background: rgba(10,14,26,.9);
-    backdrop-filter: blur(10px);
-    position: sticky;
+    padding:         var(--space-4) 2rem;
+    border-bottom:   1px solid var(--border);
+    position:        sticky;
     top: 0;
     z-index: 100;
+    background: var(--surface);
   }
   .logo {
-    font-size: 1.4rem;
-    font-weight: 800;
+    font-size:      var(--font-xl);
+    font-weight:    700;
     letter-spacing: -.02em;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color:          var(--text-primary);
   }
-  .logo span { font-weight: 300; }
+  .logo-dot { color: var(--text-dim); }
+  nav { display: flex; align-items: center; gap: 1.5rem; }
   nav a {
-    color: var(--muted);
+    color:          var(--text-dim);
     text-decoration: none;
-    font-size: .875rem;
-    margin-left: 1.5rem;
-    transition: color .2s;
+    font-size:      var(--font-xs);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    transition:     color var(--motion-instant);
   }
-  nav a:hover { color: var(--accent); }
+  nav a:hover, nav a:focus-visible { color: var(--text-primary); outline: none; }
+  nav a:focus-visible { text-decoration: underline; }
   .badge {
-    display: inline-block;
-    font-size: .7rem;
-    font-weight: 600;
-    padding: .15rem .5rem;
-    border-radius: 100px;
-    background: rgba(0,212,255,.12);
-    color: var(--accent);
-    border: 1px solid rgba(0,212,255,.3);
-    margin-left: .5rem;
-    vertical-align: middle;
+    font-size:      var(--font-xs);
+    font-weight:    600;
+    padding:        3px var(--space-2);
+    border-radius:  var(--radius);
+    border:         1px solid var(--border);
+    color:          var(--text-dim);
+    letter-spacing: .04em;
   }
 
   /* ── hero ── */
   .hero {
-    text-align: center;
-    padding: 5rem 2rem 3rem;
-    max-width: 760px;
-    margin: 0 auto;
+    text-align:  center;
+    padding:     4rem 2rem 2.5rem;
+    max-width:   700px;
+    margin:      0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-label {
+    font-size:      var(--font-xs);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color:          var(--text-dim);
+    margin-bottom:  1.25rem;
   }
   .hero h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 900;
-    letter-spacing: -.03em;
-    background: linear-gradient(135deg, #fff 0%, var(--accent) 60%, var(--accent2) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 1rem;
+    font-size:      clamp(var(--font-2xl), 5vw, var(--font-3xl));
+    font-weight:    700;
+    letter-spacing: -.02em;
+    color:          var(--text-primary);
+    margin-bottom:  .75rem;
+    line-height:    1.1;
   }
   .hero p {
-    color: var(--muted);
-    font-size: 1.1rem;
-    max-width: 540px;
-    margin: 0 auto 2rem;
+    font-size:     var(--font-sm);
+    color:         var(--text-dim);
+    max-width:     480px;
+    margin:        0 auto 1.75rem;
+    line-height:   1.6;
   }
-  .pill-row { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+  .pill-row { display: flex; gap: var(--space-2); justify-content: center; flex-wrap: wrap; }
   .pill {
-    font-size: .78rem;
-    font-weight: 600;
-    padding: .3rem .9rem;
-    border-radius: 100px;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    background: var(--surface);
+    font-size:      var(--font-xs);
+    font-weight:    500;
+    padding:        var(--space-1) var(--space-3);
+    border-radius:  var(--radius);
+    border:         1px solid var(--border);
+    color:          var(--text-dim);
+    letter-spacing: .04em;
   }
-  .pill.green { border-color: rgba(16,185,129,.4); color: var(--success); background: rgba(16,185,129,.08); }
-  .pill.blue  { border-color: rgba(0,212,255,.3);  color: var(--accent);  background: rgba(0,212,255,.07); }
 
   /* ── tabs ── */
   .tabs-wrapper {
     max-width: 900px;
-    margin: 0 auto;
-    padding: 0 1rem 4rem;
+    margin:    0 auto;
+    padding:   2rem 1rem 4rem;
   }
   .tab-list {
-    display: flex;
-    gap: .4rem;
-    overflow-x: auto;
-    padding-bottom: .5rem;
-    margin-bottom: 1.5rem;
+    display:        flex;
+    gap:            var(--space-1);
+    overflow-x:     auto;
+    padding-bottom: var(--space-2);
+    margin-bottom:  1.5rem;
     scrollbar-width: none;
+    border-bottom:  1px solid var(--border);
   }
   .tab-list::-webkit-scrollbar { display: none; }
   .tab-btn {
-    flex-shrink: 0;
-    padding: .5rem 1.1rem;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--muted);
-    font-size: .875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all .2s;
-    white-space: nowrap;
+    flex-shrink:    0;
+    padding:        var(--space-2) var(--space-4);
+    border-radius:  0;
+    border:         none;
+    border-bottom:  2px solid transparent;
+    background:     transparent;
+    color:          var(--text-dim);
+    font-family:    var(--font-primary);
+    font-size:      var(--font-xs);
+    font-weight:    600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor:         pointer;
+    transition:     color var(--motion-instant), border-color var(--motion-instant);
+    white-space:    nowrap;
+    margin-bottom:  -1px;
   }
-  .tab-btn:hover  { border-color: var(--accent); color: var(--accent); }
-  .tab-btn.active { background: rgba(0,212,255,.12); border-color: var(--accent); color: var(--accent); }
+  .tab-btn:hover       { color: var(--text-secondary); }
+  .tab-btn.active      { color: var(--text-primary); border-bottom-color: var(--text-primary); }
+  .tab-btn:focus-visible { outline: 1px solid var(--border-active); outline-offset: 2px; }
 
   /* ── card ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 2rem;
-    display: none;
-  }
+  .card { display: none; }
   .card.active { display: block; }
-  .card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
-  .card .sub { color: var(--muted); font-size: .875rem; margin-bottom: 1.5rem; }
+  .card-header { margin-bottom: 1.5rem; }
+  .card-header h2 {
+    font-size:      var(--font-md);
+    font-weight:    700;
+    color:          var(--text-primary);
+    letter-spacing: -.01em;
+    margin-bottom:  .25rem;
+  }
+  .card-header .sub {
+    font-size:  var(--font-xs);
+    color:      var(--text-dim);
+    line-height: 1.6;
+  }
 
   .enc-dec {
     display: grid;
@@ -159,123 +206,170 @@
   @media (max-width: 600px) { .enc-dec { grid-template-columns: 1fr; } }
 
   .panel {
-    background: rgba(255,255,255,.025);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.25rem;
+    border:        1px solid var(--border);
+    border-radius: var(--radius);
+    padding:       1.25rem;
+    background:    var(--surface-raised);
   }
   .panel h3 {
-    font-size: .8rem;
-    font-weight: 700;
-    letter-spacing: .08em;
+    font-size:      var(--font-xs);
+    font-weight:    700;
+    letter-spacing: .1em;
     text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 1rem;
+    color:          var(--text-primary);
+    margin-bottom:  1rem;
+    padding-bottom: var(--space-2);
+    border-bottom:  1px solid var(--border);
   }
 
   /* ── form elements ── */
-  label { display: block; font-size: .8rem; font-weight: 600; color: var(--muted); margin-bottom: .3rem; }
+  label {
+    display:        block;
+    font-size:      var(--font-xs);
+    font-weight:    600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color:          var(--text-dim);
+    margin-bottom:  var(--space-1);
+  }
   input[type=text], input[type=password], input[type=url], input[type=number],
   textarea, select {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    padding: .6rem .85rem;
-    font-size: .875rem;
-    font-family: inherit;
-    outline: none;
-    transition: border-color .2s;
+    width:         100%;
+    background:    var(--surface-input);
+    border:        1px solid var(--border);
+    border-radius: var(--radius);
+    color:         var(--text-secondary);
+    padding:       var(--space-2) var(--space-3);
+    font-size:     var(--font-sm);
+    font-family:   var(--font-primary);
+    font-weight:   var(--font-weight);
+    outline:       none;
+    transition:    border-color var(--motion-instant);
     margin-bottom: 1rem;
   }
-  input:focus, textarea:focus { border-color: var(--accent); }
+  input:hover, textarea:hover                   { border-color: var(--border-hover); }
+  input:focus, textarea:focus, select:focus     { border-color: var(--border-active); }
   textarea { resize: vertical; min-height: 80px; }
+  input::placeholder, textarea::placeholder     { color: var(--text-dim); }
 
   .file-drop {
-    border: 2px dashed var(--border);
-    border-radius: 10px;
-    padding: 1.25rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all .2s;
+    border:        1px dashed var(--border);
+    border-radius: var(--radius);
+    padding:       1.25rem;
+    text-align:    center;
+    cursor:        pointer;
+    transition:    border-color var(--motion-instant), background var(--motion-fast);
     margin-bottom: 1rem;
-    position: relative;
-    overflow: hidden;
+    position:      relative;
+    overflow:      hidden;
   }
-  .file-drop:hover, .file-drop.over { border-color: var(--accent); background: rgba(0,212,255,.04); }
+  .file-drop:hover, .file-drop.over {
+    border-color: var(--border-hover);
+    background:   rgba(231,228,222,.03);
+  }
+  .file-drop:focus-within { border-color: var(--border-active); }
   .file-drop input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-  .file-drop .icon { font-size: 1.5rem; display: block; margin-bottom: .4rem; }
-  .file-drop p { font-size: .8rem; color: var(--muted); pointer-events: none; }
-  .file-drop .file-name { font-size: .8rem; color: var(--accent); margin-top: .3rem; }
+  .file-drop .icon   { font-size: var(--font-lg); display: block; margin-bottom: var(--space-1); opacity: .5; }
+  .file-drop p       { font-size: var(--font-xs); color: var(--text-dim); pointer-events: none; letter-spacing: .04em; }
+  .file-drop .file-name { font-size: var(--font-xs); color: var(--text-secondary); margin-top: var(--space-1); }
 
   .btn {
-    width: 100%;
-    padding: .7rem;
-    border-radius: 8px;
-    border: none;
-    font-size: .9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .2s;
-    display: flex;
-    align-items: center;
+    width:           100%;
+    padding:         var(--space-3);
+    border-radius:   var(--radius);
+    border:          1px solid var(--border-active);
+    font-family:     var(--font-primary);
+    font-size:       var(--font-sm);
+    font-weight:     700;
+    letter-spacing:  .06em;
+    text-transform:  uppercase;
+    cursor:          pointer;
+    transition:      background var(--motion-instant), color var(--motion-instant), transform var(--motion-instant);
+    display:         flex;
+    align-items:     center;
     justify-content: center;
-    gap: .5rem;
+    gap:             var(--space-2);
   }
   .btn-primary {
-    background: linear-gradient(135deg, var(--accent), #0099bb);
-    color: #0a0e1a;
+    background: var(--text-primary);
+    color:      #000000;
   }
-  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .btn-primary:hover         { background: var(--text-secondary); transform: translateY(-1px); }
+  .btn-primary:active        { transform: translateY(0); }
+  .btn-primary:disabled      { opacity: .35; cursor: not-allowed; transform: none; }
+  .btn-primary:focus-visible { outline: 1px solid var(--text-primary); outline-offset: 3px; }
 
   /* ── result ── */
   .result {
-    margin-top: 1rem;
-    padding: .9rem 1rem;
-    border-radius: 8px;
-    font-size: .875rem;
-    display: none;
+    margin-top:    1rem;
+    padding:       var(--space-3) var(--space-4);
+    border-radius: var(--radius);
+    font-size:     var(--font-xs);
+    display:       none;
+    line-height:   1.6;
   }
-  .result.ok  { background: rgba(16,185,129,.1);  border: 1px solid rgba(16,185,129,.3); color: var(--success); }
-  .result.err { background: rgba(239,68,68,.1);   border: 1px solid rgba(239,68,68,.3);  color: var(--danger);  }
-  .result pre { white-space: pre-wrap; word-break: break-all; font-family: var(--mono); font-size: .8rem; margin-top: .5rem; }
+  .result.ok  {
+    background: rgba(231,228,222,.05);
+    border:     1px solid var(--border-hover);
+    color:      var(--success);
+  }
+  .result.err {
+    background: rgba(231,228,222,.03);
+    border:     1px solid var(--border);
+    color:      var(--danger);
+    opacity:    .9;
+  }
+  .result pre {
+    white-space:   pre-wrap;
+    word-break:    break-all;
+    font-family:   var(--font-primary);
+    font-size:     var(--font-xs);
+    margin-top:    var(--space-2);
+    padding:       var(--space-3);
+    background:    rgba(0,0,0,.4);
+    border-radius: var(--space-1);
+  }
   .download-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    margin-top: .6rem;
-    padding: .4rem .9rem;
-    border-radius: 6px;
-    background: rgba(16,185,129,.15);
-    border: 1px solid rgba(16,185,129,.35);
-    color: var(--success);
-    font-size: .8rem;
-    font-weight: 600;
-    cursor: pointer;
+    display:        inline-flex;
+    align-items:    center;
+    gap:            var(--space-1);
+    margin-top:     var(--space-2);
+    padding:        var(--space-1) var(--space-3);
+    border-radius:  var(--radius);
+    background:     transparent;
+    border:         1px solid var(--border-hover);
+    color:          var(--text-secondary);
+    font-family:    var(--font-primary);
+    font-size:      var(--font-xs);
+    font-weight:    600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    cursor:         pointer;
     text-decoration: none;
+    transition:     border-color var(--motion-instant), color var(--motion-instant);
   }
+  .download-btn:hover { border-color: var(--border-active); color: var(--text-primary); }
 
   /* ── footer ── */
   footer {
-    border-top: 1px solid var(--border);
-    padding: 1.5rem 2rem;
-    text-align: center;
-    color: var(--muted);
-    font-size: .8rem;
+    border-top:  1px solid var(--border);
+    padding:     1.5rem 2rem;
+    text-align:  center;
+    color:       var(--text-dim);
+    font-size:   var(--font-xs);
+    letter-spacing: .04em;
   }
-  footer a { color: var(--accent); text-decoration: none; }
+  footer a { color: var(--text-secondary); text-decoration: none; }
+  footer a:hover { color: var(--text-primary); }
 
   /* ── loader ── */
   .spinner {
-    display: inline-block;
-    width: 16px; height: 16px;
-    border: 2px solid rgba(10,14,26,.4);
-    border-top-color: #0a0e1a;
+    display:       inline-block;
+    width: 12px; height: 12px;
+    border:        1.5px solid rgba(0,0,0,.25);
+    border-top-color: #000;
     border-radius: 50%;
-    animation: spin .6s linear infinite;
+    animation:     spin .6s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
@@ -283,47 +377,50 @@
 <body>
 
 <header>
-  <div class="logo">Invis<span>ync</span></div>
+  <div class="logo">INVISYNC<span class="logo-dot">.</span></div>
   <nav>
     <a href="#toolkit">Toolkit</a>
     <a href="https://github.com/deepmaha2006/steganography-toolkit" target="_blank" rel="noopener">GitHub</a>
-    <a href="/api/docs" target="_blank">API Docs</a>
+    <a href="/api/docs" target="_blank">API</a>
     <span class="badge">v1.0.0</span>
   </nav>
 </header>
 
 <section class="hero" id="toolkit">
-  <h1>Invisync</h1>
-  <p>Military-grade steganography toolkit — hide encrypted data inside images, audio, QR codes, text &amp; PDFs.</p>
+  <p class="hero-label">Professional Steganography Toolkit</p>
+  <h1>Hide in plain sight.</h1>
+  <p>AES-256-GCM authenticated encryption with LSB steganography — embed secrets inside images, audio, QR codes, text &amp; PDFs.</p>
   <div class="pill-row">
-    <span class="pill green">AES-256-GCM</span>
-    <span class="pill blue">LSB Steganography</span>
+    <span class="pill">AES-256-GCM</span>
+    <span class="pill">PBKDF2 · 600k iters</span>
     <span class="pill">PNG · BMP</span>
     <span class="pill">WAV · FLAC · MP3</span>
-    <span class="pill">PDF · QR · Text</span>
+    <span class="pill">PDF · QR · Unicode</span>
   </div>
 </section>
 
 <div class="tabs-wrapper">
   <div class="tab-list" role="tablist">
-    <button class="tab-btn active" data-tab="image">🖼 Image</button>
-    <button class="tab-btn" data-tab="audio">🎵 Audio</button>
-    <button class="tab-btn" data-tab="text">📝 Text</button>
-    <button class="tab-btn" data-tab="pdf">📄 PDF</button>
-    <button class="tab-btn" data-tab="qr">🔲 QR Code</button>
+    <button class="tab-btn active" data-tab="image">Image</button>
+    <button class="tab-btn" data-tab="audio">Audio</button>
+    <button class="tab-btn" data-tab="text">Text</button>
+    <button class="tab-btn" data-tab="pdf">PDF</button>
+    <button class="tab-btn" data-tab="qr">QR Code</button>
   </div>
 
   <!-- IMAGE -->
   <div class="card active" id="tab-image">
-    <h2>Image Steganography</h2>
-    <p class="sub">LSB-encode a secret message into PNG or BMP pixels. Optionally encrypt with AES-256-GCM.</p>
+    <div class="card-header">
+      <h2>Image Steganography</h2>
+      <p class="sub">LSB-encode a secret message into PNG or BMP pixels. Optionally encrypt with AES-256-GCM.</p>
+    </div>
     <div class="enc-dec">
       <div class="panel">
         <h3>Encode</h3>
         <label>Cover Image (PNG or BMP)</label>
         <div class="file-drop" id="img-enc-drop">
           <input type="file" accept=".png,.bmp" id="img-enc-file" onchange="setFileName(this,'img-enc-name')">
-          <span class="icon">🖼</span>
+          <span class="icon">↑</span>
           <p>Drop file or click to browse</p>
           <div class="file-name" id="img-enc-name"></div>
         </div>
@@ -341,7 +438,7 @@
         <label>Stego Image (PNG or BMP)</label>
         <div class="file-drop">
           <input type="file" accept=".png,.bmp" id="img-dec-file" onchange="setFileName(this,'img-dec-name')">
-          <span class="icon">🔍</span>
+          <span class="icon">↓</span>
           <p>Drop stego image or click to browse</p>
           <div class="file-name" id="img-dec-name"></div>
         </div>
@@ -357,15 +454,17 @@
 
   <!-- AUDIO -->
   <div class="card" id="tab-audio">
-    <h2>Audio Steganography</h2>
-    <p class="sub">LSB-encode a secret into WAV, FLAC, AIFF, or MP3 PCM samples. Output is always lossless WAV.</p>
+    <div class="card-header">
+      <h2>Audio Steganography</h2>
+      <p class="sub">LSB-encode a secret into WAV, FLAC, AIFF, or MP3 PCM samples. Output is always lossless WAV.</p>
+    </div>
     <div class="enc-dec">
       <div class="panel">
         <h3>Encode</h3>
         <label>Cover Audio (WAV / FLAC / AIFF / MP3)</label>
         <div class="file-drop">
           <input type="file" accept=".wav,.flac,.aiff,.mp3" id="aud-enc-file" onchange="setFileName(this,'aud-enc-name')">
-          <span class="icon">🎵</span>
+          <span class="icon">↑</span>
           <p>Drop audio file or click to browse</p>
           <div class="file-name" id="aud-enc-name"></div>
         </div>
@@ -383,7 +482,7 @@
         <label>Stego Audio (WAV / FLAC / AIFF)</label>
         <div class="file-drop">
           <input type="file" accept=".wav,.flac,.aiff,.mp3" id="aud-dec-file" onchange="setFileName(this,'aud-dec-name')">
-          <span class="icon">🔍</span>
+          <span class="icon">↓</span>
           <p>Drop stego audio or click to browse</p>
           <div class="file-name" id="aud-dec-name"></div>
         </div>
@@ -399,8 +498,10 @@
 
   <!-- TEXT -->
   <div class="card" id="tab-text">
-    <h2>Text Steganography</h2>
-    <p class="sub">Zero-width Unicode characters hide a secret message invisibly inside any cover text.</p>
+    <div class="card-header">
+      <h2>Text Steganography</h2>
+      <p class="sub">Zero-width Unicode characters hide a secret message invisibly inside any cover text.</p>
+    </div>
     <div class="enc-dec">
       <div class="panel">
         <h3>Encode</h3>
@@ -431,15 +532,17 @@
 
   <!-- PDF -->
   <div class="card" id="tab-pdf">
-    <h2>PDF Steganography</h2>
-    <p class="sub">Embeds invisible base64 text layer (new PDF) or injects into existing PDF metadata.</p>
+    <div class="card-header">
+      <h2>PDF Steganography</h2>
+      <p class="sub">Embeds invisible base64 text layer (new PDF) or injects into existing PDF metadata.</p>
+    </div>
     <div class="enc-dec">
       <div class="panel">
         <h3>Encode</h3>
         <label>Cover PDF (optional — creates new PDF if omitted)</label>
         <div class="file-drop">
           <input type="file" accept=".pdf" id="pdf-enc-file" onchange="setFileName(this,'pdf-enc-name')">
-          <span class="icon">📄</span>
+          <span class="icon">↑</span>
           <p>Drop existing PDF or click to browse (optional)</p>
           <div class="file-name" id="pdf-enc-name"></div>
         </div>
@@ -457,7 +560,7 @@
         <label>Stego PDF</label>
         <div class="file-drop">
           <input type="file" accept=".pdf" id="pdf-dec-file" onchange="setFileName(this,'pdf-dec-name')">
-          <span class="icon">🔍</span>
+          <span class="icon">↓</span>
           <p>Drop stego PDF or click to browse</p>
           <div class="file-name" id="pdf-dec-name"></div>
         </div>
@@ -473,8 +576,10 @@
 
   <!-- QR -->
   <div class="card" id="tab-qr">
-    <h2>QR Code Generator</h2>
-    <p class="sub">Generate a scannable QR code from any URL — high error-correction (H level).</p>
+    <div class="card-header">
+      <h2>QR Code Generator</h2>
+      <p class="sub">Generate a scannable QR code from any URL — high error-correction (H level).</p>
+    </div>
     <div class="panel" style="max-width:400px">
       <h3>Generate QR</h3>
       <label>URL</label>
@@ -491,7 +596,7 @@
 
 <footer>
   <p>Invisync &mdash; Professional Steganography Toolkit &mdash; <a href="https://github.com/deepmaha2006/steganography-toolkit" target="_blank" rel="noopener">GitHub</a> &mdash; MIT License &mdash; &copy; 2026 deepmaha2006</p>
-  <p style="margin-top:.4rem">AES-256-GCM &nbsp;·&nbsp; PBKDF2-HMAC-SHA256 (600,000 iters) &nbsp;·&nbsp; LSB Steganography</p>
+  <p style="margin-top:var(--space-2)">AES-256-GCM &nbsp;&middot;&nbsp; PBKDF2-HMAC-SHA256 (600,000 iters) &nbsp;&middot;&nbsp; LSB Steganography</p>
 </footer>
 
 <script>
@@ -563,7 +668,7 @@
       const aUrl = URL.createObjectURL(blob);
       const ext = file.name.endsWith('.bmp') ? '.bmp' : '.png';
       showResult('img-enc-result', true,
-        `✓ Encoded successfully!<br><a class="download-btn" href="${aUrl}" download="stego${ext}">⬇ Download stego${ext}</a>`);
+        `✓ Encoded successfully<br><a class="download-btn" href="${aUrl}" download="stego${ext}">↓ stego${ext}</a>`);
     } else {
       const j = await r.json().catch(() => ({ detail: r.statusText }));
       showResult('img-enc-result', false, `✗ ${j.detail || 'Error'}`);
@@ -602,7 +707,7 @@
       const blob = await r.blob();
       const aUrl = URL.createObjectURL(blob);
       showResult('aud-enc-result', true,
-        `✓ Encoded successfully!<br><a class="download-btn" href="${aUrl}" download="stego.wav">⬇ Download stego.wav</a>`);
+        `✓ Encoded successfully<br><a class="download-btn" href="${aUrl}" download="stego.wav">↓ stego.wav</a>`);
     } else {
       const j = await r.json().catch(() => ({ detail: r.statusText }));
       showResult('aud-enc-result', false, `✗ ${j.detail || 'Error'}`);
@@ -642,8 +747,8 @@
       const blob = new Blob([j.stego_text], { type: 'text/plain' });
       const aUrl = URL.createObjectURL(blob);
       showResult('txt-enc-result', true,
-        `✓ Encoded! Copy the text below or download it.<pre>${escHtml(j.stego_text)}</pre>` +
-        `<a class="download-btn" href="${aUrl}" download="stego.txt">⬇ Download stego.txt</a>`);
+        `✓ Encoded — copy or download below<pre>${escHtml(j.stego_text)}</pre>` +
+        `<a class="download-btn" href="${aUrl}" download="stego.txt">↓ stego.txt</a>`);
     } else {
       showResult('txt-enc-result', false, `✗ ${j.detail || 'Error'}`);
     }
@@ -680,7 +785,7 @@
       const blob = await r.blob();
       const aUrl = URL.createObjectURL(blob);
       showResult('pdf-enc-result', true,
-        `✓ Encoded!<br><a class="download-btn" href="${aUrl}" download="stego.pdf">⬇ Download stego.pdf</a>`);
+        `✓ Encoded<br><a class="download-btn" href="${aUrl}" download="stego.pdf">↓ stego.pdf</a>`);
     } else {
       const j = await r.json().catch(() => ({ detail: r.statusText }));
       showResult('pdf-enc-result', false, `✗ ${j.detail || 'Error'}`);
@@ -716,8 +821,8 @@
       const blob = await r.blob();
       const aUrl = URL.createObjectURL(blob);
       showResult('qr-result', true,
-        `✓ QR generated!<br><img src="${aUrl}" style="max-width:220px;margin-top:.5rem;border-radius:8px"><br>` +
-        `<a class="download-btn" href="${aUrl}" download="qr.png">⬇ Download qr.png</a>`);
+        `✓ QR generated<br><img src="${aUrl}" style="max-width:200px;margin-top:var(--space-2);border-radius:var(--space-1);display:block"><br>` +
+        `<a class="download-btn" href="${aUrl}" download="qr.png">↓ qr.png</a>`);
     } else {
       const j = await r.json().catch(() => ({ detail: r.statusText }));
       showResult('qr-result', false, `✗ ${j.detail || 'Error'}`);
