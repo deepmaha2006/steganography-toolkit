@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools>=74", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "invisync"
+version = "1.0.0"
+description = "Professional steganography toolkit — hide AES-256-GCM encrypted data in images, audio, QR codes, text, PDF, and git commits"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "deepmaha2006" },
+]
+keywords = ["steganography", "cryptography", "security", "privacy", "aes", "lsb"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Multimedia :: Sound/Audio",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "Pillow>=10.4.0",
+    "numpy>=1.26.0",
+    "cryptography>=43.0.0",
+    "qrcode>=7.4.2",
+    "soundfile>=0.12.1",
+    "PyPDF2>=3.0.0",
+    "reportlab>=4.2.0",
+    "GitPython>=3.1.43",
+    "click>=8.1.7",
+    "pydub>=0.25.1",
+]
+
+[project.optional-dependencies]
+web = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "python-multipart>=0.0.9",
+]
+dev = [
+    "pytest>=8.0",
+    "black>=24.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10",
+    "types-Pillow",
+]
+
+[project.scripts]
+invisync = "stego.cli:cli"
+
+[project.urls]
+Homepage   = "https://github.com/deepmaha2006/steganography-toolkit"
+Repository = "https://github.com/deepmaha2006/steganography-toolkit"
+Issues     = "https://github.com/deepmaha2006/steganography-toolkit/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["stego*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "W", "I", "N", "UP"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = false
+ignore_missing_imports = true

@@ -1,0 +1,92 @@
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ── Testing ──────────────────────────────────────────────────────────────────
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+htmlcov/
+
+# ── Type checking ────────────────────────────────────────────────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
+
+# ── IDE / editors ────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Project-specific ─────────────────────────────────────────────────────────
+# Test output files (generated during tests)
+*.stego.png
+*.stego.bmp
+*.stego.wav
+*.stego.pdf
+*.stego.txt
+test_output/
+tmp/
+
+# Secrets — never commit these
+.env.local
+.env.production
+secrets.json
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Vercel
+.vercel/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
